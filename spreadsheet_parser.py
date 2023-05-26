@@ -99,7 +99,7 @@ def clean_patient_name_cells(worksheet):
         patient_name_cell_value = patient_name_cell_value.lower()
         patient_name_cell_value = patient_name_cell_value.replace('comfirmed', 'confirmed')
 
-        patient_cell_parts = re.split(' |\(|,', patient_name_cell_value)
+        patient_cell_parts = re.split(' |\(|,', patient_name_cell_value, maxsplit=3)
         for substring_index in range(len(patient_cell_parts) -1, -1, -1):
             substring = patient_cell_parts[substring_index]
 
