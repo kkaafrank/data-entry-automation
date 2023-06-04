@@ -1,29 +1,9 @@
 import re
+import json
 import openpyxl
 import datetime
 
 from config import config
-
-#TODO: move to env
-COLUMN_NAME_MAPPING: dict = {
-    'DATE': 1,
-    'FIRST NAME': 2,
-    'LAST NAME': 3,
-    'PROCEDURE ID': 4,
-    'PROCEDURE': 5,
-    'PROCEDURE CODE': 6,
-    'DOB': 7,
-    'INSURANCE': 8,
-    'INSURANCE TYPE': 9,
-    'ADDRESS LINE 1': 10,
-    'ADDRESS LINE 2': 11,
-    'CITY': 12,
-    'STATE': 13,
-    'SEX': 14,
-    'ETHNICITY': 15,
-    'RACE': 16,
-    'DIAGNOSIS': 17,
-}
 
 def remove_unnecessary_rows(worksheet):
     """Removes empty and unwanted rows from the excel sheet
@@ -34,8 +14,8 @@ def remove_unnecessary_rows(worksheet):
     confirmed_keywords: list[str] = config['confirmed_appointment_keywords'].split(',')
 
     for row_index in range(worksheet.max_row, 1, -1):
-        date_cell = worksheet.cell(row_index, COLUMN_NAME_MAPPING['DATE'])
-        patient_name_cell = worksheet.cell(row_index, COLUMN_NAME_MAPPING['FIRST NAME'])
+        date_cell = worksheet.cell(row_index, config['column_name_mapping']['DATE'])
+        patient_name_cell = worksheet.cell(row_index, config['column_name_mapping']['FIRST NAME'])
 
         row_doesnt_have_date: bool = date_cell.value is None
         row_doesnt_have_patient: bool = patient_name_cell.value is None
@@ -68,14 +48,14 @@ def edit_spreadsheet_columns(worksheet):
             worksheet.cell(1, col_index, 'FIRST NAME')
             continue
 
-        if worksheet.cell(1, col_index).value not in COLUMN_NAME_MAPPING.keys():
+        if worksheet.cell(1, col_index).value not in config['column_name_mapping'].keys():
             worksheet.delete_cols(col_index, 1)
     print('    Done removing columns')
 
-    sheet_column_names: list[str] = [worksheet.cell(1, col_index).value for col_index in range(1, len(COLUMN_NAME_MAPPING) + 1)]
+    sheet_column_names: list[str] = [worksheet.cell(1, col_index).value for col_index in range(1, len(config['column_name_mapping']) + 1)]
     sheet_column_names = [col_name for col_name in sheet_column_names if col_name is not None]
     # add empty columns that will be used later
-    for col_name, col_index in COLUMN_NAME_MAPPING.items():
+    for col_name, col_index in config['column_name_mapping'].items():
         if col_name not in sheet_column_names:
             worksheet.insert_cols(col_index)
             worksheet.cell(1, col_index, col_name)
@@ -92,7 +72,7 @@ def clean_patient_name_cells(worksheet):
     return: edited openpyxl worksheet
     """
     for row_index in range(worksheet.max_row, 1, -1):
-        patient_name_cell_value: str = worksheet.cell(row_index, COLUMN_NAME_MAPPING['FIRST NAME']).value
+        patient_name_cell_value: str = worksheet.cell(row_index, config['column_name_mapping']['FIRST NAME']).value
         if patient_name_cell_value is None:
             continue
 
@@ -117,8 +97,8 @@ def clean_patient_name_cells(worksheet):
         
         first_name: str = ' '.join(patient_cell_parts[:-1])
         last_name: str = patient_cell_parts[-1]
-        worksheet.cell(row_index, COLUMN_NAME_MAPPING['FIRST NAME'], first_name)
-        worksheet.cell(row_index, COLUMN_NAME_MAPPING['LAST NAME'], last_name)
+        worksheet.cell(row_index, config['column_name_mapping']['FIRST NAME'], first_name)
+        worksheet.cell(row_index, config['column_name_mapping']['LAST NAME'], last_name)
 
     return worksheet
 
@@ -130,7 +110,7 @@ def separate_combined_procedures(worksheet):
     return: edited openpyxl worksheet
     """
     for row_index in range(worksheet.max_row, 1, -1):
-        procedure: str = worksheet.cell(row_index, COLUMN_NAME_MAPPING['PROCEDURE']).value.lower()
+        procedure: str = worksheet.cell(row_index, config['column_name_mapping']['PROCEDURE']).value.lower()
         is_colonoscopy: bool = 'colon' in procedure
         is_egd: bool = 'egd' in procedure
 
@@ -139,11 +119,11 @@ def separate_combined_procedures(worksheet):
 
         worksheet.insert_rows(row_index + 1, 1)
         procedure = procedure.replace('egd', '').replace('/', '')
-        worksheet.cell(row_index, COLUMN_NAME_MAPPING['PROCEDURE'], procedure)
+        worksheet.cell(row_index, config['column_name_mapping']['PROCEDURE'], procedure)
         for col_index in range(1, worksheet.max_column + 1, 1):
-            if col_index == COLUMN_NAME_MAPPING['PROCEDURE']:
+            if col_index == config['column_name_mapping']['PROCEDURE']:
                 worksheet.cell(row_index + 1, col_index, 'egd')
-            elif col_index == COLUMN_NAME_MAPPING['DATE']:
+            elif col_index == config['column_name_mapping']['DATE']:
                 date: datetime.datetime = worksheet.cell(row_index, col_index).value
                 worksheet.cell(row_index + 1, col_index, date)
                 worksheet.cell(row_index + 1, col_index).number_format = 'mm-dd-yy'
