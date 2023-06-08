@@ -239,15 +239,10 @@ if __name__ == '__main__':
     #   character recognition on the image
     #   split resulting string on new line (\n)
     #   for each line in the pdf
-    #       search for "ID:", "Sex:", "Procedure Code:", "Diagnosis code"
+    #       search for "ID:", "Procedure Code:", "Diagnosis code"
     #       parse found lines for desired information
     #   
-    #   add id, gender, procedure code, and diagnosis code to the pandas dataframe
-    #
-    #   select the profile tab
-    #   grab the address card element
-    #   get address info from the element (address line 1, address line 2, city, state, zip)
-    #   add address info to the pandas datafram
+    #   add id, procedure code, and diagnosis code to the excel sheet
         pass
 
     # save the dataframe
