@@ -7,6 +7,13 @@ Currently, this is not possible with the data I have available to me
 Inferences (manual work) need to be made regarding a patients ethnicity and race  
 This inference is done after the execution of the practice_fusion_scrapper.py and before system13_entry.py  
 
+# Requirements outside of Python modules
+This automation codebase requires a couple packages outside of Python modules. Please download and install the following to run the code.
+
+[Poppler](https://poppler.freedesktop.org/) for converting PDFs to images.
+
+[Tesseract](https://tesseract-ocr.github.io/tessdoc/Installation.html) for OCR (converting images to text).
+
 # Enumerations
 ## Sex Enumeration
 F - Female
