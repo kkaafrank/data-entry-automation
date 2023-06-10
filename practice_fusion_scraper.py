@@ -246,8 +246,17 @@ def parse_pdf_text(pdf_text: str) -> tuple[str, str, str]:
 
 def close_patient_charts_tab(driver: webdriver.Chrome):
     try:
-        close_charts_container: WebElement = driver.find_element(By.CLASS_NAME, config['pf_close_charts_container_class'])
-        close_charts_button: WebElement = close_charts_container.find_element(By.XPATH, config['pf_close_charts_button_xpath'])
+        potential_patient_list_containers: list[WebElement] = driver.find_elements(By.CLASS_NAME, config['pf_close_charts_container_class'])
+        patient_list_container: WebElement
+        for container in potential_patient_list_containers:
+            if container.text.startswith('Patient lists'):
+                patient_list_container: WebElement = container
+                break
+
+        patient_list_container = patient_list_container.find_element(By.XPATH, config['xpath_child_selector'])
+        patient_chart_container: WebElement = patient_list_container.find_elements(By.XPATH, config['xpath_child_selector'])[1]
+        patient_chart_container: WebElement = patient_chart_container.find_element(By.XPATH, config['xpath_child_selector'])
+        close_charts_button: WebElement = patient_chart_container.find_elements(By.XPATH, config['xpath_child_selector'])[2]
         close_charts_button.click()
 
         sleep(3)
@@ -255,7 +264,13 @@ def close_patient_charts_tab(driver: webdriver.Chrome):
         pass
 
     try:
-        close_dob_filter_button: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_dob_close_css_select'])
+        potential_close_dob_filter_button: list[WebElement] = driver.find_elements(By.CSS_SELECTOR, config['pf_dob_close_css_select'])
+        close_dob_filter_button: WebElement
+        for button in potential_close_dob_filter_button:
+            if button.accessible_name == '\uf139':
+                close_dob_filter_button = button
+                break
+
         close_dob_filter_button.click()
 
         sleep(1)
