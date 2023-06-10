@@ -7,7 +7,6 @@ from pdf2image import convert_from_path
 from PIL import Image
 import pytesseract
 
-import sys
 import difflib
 import datetime
 import openpyxl
@@ -31,34 +30,60 @@ def practice_fusion_login(driver: webdriver.Chrome):
     password_element.send_keys(config['pf_password'])
     login_button_element: WebElement = driver.find_element(By.ID, config['pf_login_button_id'])
     login_button_element.click()
+
+    # validate_login(driver)
     
     # allow new webpage to load
     sleep(1)
 
     # 2 factor authentication
-    return two_factor_authentication(driver)
+    is_2fa_successful: bool = False
+    try:
+        send_code_button: WebElement = driver.find_element(By.ID, config['pf_send_2fa_code_button_id'])
+        send_code_button.click()
+        while not is_2fa_successful:
+            code_entered: bool = enter_2fa_code(driver)
+            if not code_entered:
+                break
+
+            is_2fa_successful = validate_2fa(driver)
+            pass
+                
+    except:
+        print('Invalid username/password')
+        return False
+
+    return is_2fa_successful
 
 
-# TODO: if 2fa code is wrong
-def two_factor_authentication(driver: webdriver.Chrome) -> bool:
+def enter_2fa_code(driver: webdriver.Chrome) -> bool:
     """Helps automate the 2fa process
 
     driver: selenium webpage driver
     return: if 2fa was successful
     """
-    send_code_button: WebElement = driver.find_element(By.ID, config['pf_send_2fa_code_button_id'])
-    send_code_button.click()
     code: str = sg.popup_get_text(message='Enter two factor authentication code:', keep_on_top=True)
     
     if code is None or code == '':
         return False
 
     enter_code_element: WebElement = driver.find_element(By.ID, config['pf_enter_code_field_id'])
+    enter_code_element.clear()
     enter_code_element.send_keys(code)
     send_code_button: WebElement = driver.find_element(By.ID, config['pf_send_code_button_id'])
     send_code_button.click()
 
     return True
+
+
+def validate_2fa(driver: webdriver.Chrome) -> bool:
+    try:
+        sleep(.5)
+        driver.find_element(By.XPATH, config['pf_wrong_code_xpath'])
+    except:
+        return True
+    
+    return False
 
 
 def go_to_charts(driver: webdriver.Chrome):
@@ -278,10 +303,11 @@ def close_patient_charts_tab(driver: webdriver.Chrome):
     except:
         pass
 
+
 # TODO: randomly will open "quick view" menu, causes crashes
 # TODO: turn sleeps into sophisticated waits
 # https://selenium-python.readthedocs.io/waits.html#explicit-waits
-if __name__ == '__main__':
+def main():
     # read the cleaned patient data
     workbook = openpyxl.load_workbook(f'data/{config["cleaned_workbook_name"]}')
     patient_data = workbook[config['main_worksheet_name']]
@@ -300,7 +326,8 @@ if __name__ == '__main__':
 
     login_successful: bool = practice_fusion_login(driver)
     if not login_successful:
-        sys.exit('Login unsuccessful. Please check username, password, and two factor authentication code.')
+        print('Login unsuccessful. Please check username, password, and two factor authentication code.')
+        return
 
     sleep(3) # give time for webpage to load
     go_to_charts(driver)
@@ -354,3 +381,7 @@ if __name__ == '__main__':
 
     driver.close()
     print('Done with Practice Fusion scraping')
+
+
+if __name__ == '__main__':
+    main()
