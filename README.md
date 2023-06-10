@@ -1,11 +1,8 @@
 # Description
 A code repository to automate data entry into the system13 audit website
 
-# Goals
-The goal of this repository is to completely automate the data entry into the system13 claims audit website  
-Currently, this is not possible with the data I have available to me  
-Inferences (manual work) need to be made regarding a patients ethnicity and race, and manual cleanup of the initial excel file is needed  
-This inference is done after the execution of the practice_fusion_scrapper.py and before system13_entry.py  
+# Background
+The goal of this repository is to completely automate the data entry into the system13 claims audit website. Currently, this is not possible with the data I have available to me. Inferences (manual work) need to be made regarding a patients ethnicity and race, and manual cleanup of the initial excel file is needed. This inference is done after the execution of the practice_fusion_scrapper.py and before system13_entry.py  
 
 # Setup
 1. Install [Python](https://www.python.org/downloads/) (version 3.10 or greater)
