@@ -189,6 +189,7 @@ if __name__ == '__main__':
     worksheet = derive_insurance_type(worksheet)
     print('Done deriving insurance types')
     worksheet = strip_name_fields(worksheet)
+    print('Done with excel cleanup')
 
     worksheet.page_setup.fitToWidth = 1
     workbook.save(f'data/{config["cleaned_workbook_name"]}')

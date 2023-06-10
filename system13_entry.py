@@ -299,3 +299,4 @@ if __name__ == '__main__':
         add_new_claim(driver)
 
     driver.close()
+    print('Done with System13 entry')

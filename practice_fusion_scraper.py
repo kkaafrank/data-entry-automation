@@ -207,7 +207,7 @@ def download_document(driver: webdriver.Chrome, patient_name: str, date: datetim
     old_file_path: str = f'{config["pf_pdf_download_location"]}{pdf_name}'
     new_file_path: str = f'{config["pf_pdf_download_location"]}{new_file_name}'
 
-    sleep(3)
+    sleep(1)
 
     if not os.path.exists(new_file_path):
         os.rename(old_file_path, new_file_path)
@@ -301,7 +301,7 @@ if __name__ == '__main__':
     go_to_charts(driver)
     sleep(1) # give time for webpage to load
 
-    for row_index in range(198, patient_data.max_row + 1):
+    for row_index in range(2, patient_data.max_row + 1):
         close_patient_charts_tab(driver)
 
         patient_dob: str = get_date_of_birth(patient_data, row_index)
@@ -348,3 +348,4 @@ if __name__ == '__main__':
         workbook.save(f'data/{config["cleaned_workbook_name"]}')
 
     driver.close()
+    print('Done with Practice Fusion scraping')
