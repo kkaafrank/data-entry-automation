@@ -134,6 +134,40 @@ def separate_combined_procedures(worksheet):
     return worksheet
 
 
+def derive_insurance_type(worksheet):
+    self_pay_spellings: list[str] = ['self-pay', 'self pay', 'selfpay']
+    for row_index in range(worksheet.max_row, 1, -1):
+        insurace_provider: str = worksheet.cell(row_index, config['column_name_mapping']['INSURANCE']).value.lower()
+        insurance_type: str = ''
+
+        if 'bcbs' in insurace_provider:
+            insurance_type = 'BL'
+        elif any([self_pay_spelling in insurace_provider for self_pay_spelling in self_pay_spellings]):
+            insurance_type = 'Z'
+        elif 'ppo' in insurace_provider:
+            insurance_type = 'PPO'
+        else:
+            insurance_type = 'HMO'
+        
+        worksheet.cell(row_index, config['column_name_mapping']['INSURANCE TYPE'], insurance_type)
+
+    return worksheet
+
+
+def strip_name_fields(worksheet):
+    for row_index in range(worksheet.max_row, 1, -1):
+        first_name: str = worksheet.cell(row_index, config['column_name_mapping']['FIRST NAME']).value
+        last_name: str = worksheet.cell(row_index, config['column_name_mapping']['LAST NAME']).value
+
+        first_name = first_name.strip()
+        last_name = last_name.strip()
+
+        worksheet.cell(row_index, config['column_name_mapping']['FIRST NAME'], first_name)
+        worksheet.cell(row_index, config['column_name_mapping']['LAST NAME'], last_name)
+
+    return worksheet
+
+
 if __name__ == '__main__':
     workbook = openpyxl.load_workbook(f'data/{config["raw_patient_data"]}')
     # remove unneeded sheets
@@ -152,6 +186,9 @@ if __name__ == '__main__':
     print('Done cleaning patient names')
     worksheet = separate_combined_procedures(worksheet)
     print('Done separating colon and egd procedures')
+    worksheet = derive_insurance_type(worksheet)
+    print('Done deriving insurance types')
+    worksheet = strip_name_fields(worksheet)
 
     worksheet.page_setup.fitToWidth = 1
     workbook.save(f'data/{config["cleaned_workbook_name"]}')
