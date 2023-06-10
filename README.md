@@ -36,23 +36,23 @@ This automation codebase requires a couple packages outside of Python modules. P
 
 # Enumerations
 ## Sex Enumeration
-F - Female
-M - Male
-U - Unknown
+F - Female  
+M - Male  
+U - Unknown  
 
 ## Ethnicity Enumeration
-1 - Hispanic
-2 - Not Hispanic
+1 - Hispanic  
+2 - Not Hispanic  
 
 ## Race Enumeration
-1 - American Inidan/Eskimo/Aleut
-2 - Asian/Native Hawaiian/Pacific Islander
-3 - Black/African American
-4 - White
-5 - Other
+1 - American Inidan/Eskimo/Aleut  
+2 - Asian/Native Hawaiian/Pacific Islander  
+3 - Black/African American  
+4 - White  
+5 - Other  
 
 ## Insurance Source Code Enumeration
-12 - PPO
-16 - HMO
-BL - BCBS
-ZZ - Self-Pay
+12 - PPO  
+16 - HMO  
+BL - BCBS  
+ZZ - Self-Pay  
