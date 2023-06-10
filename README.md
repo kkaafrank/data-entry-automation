@@ -16,7 +16,7 @@ This inference is done after the execution of the practice_fusion_scrapper.py an
 6. Change the fields in the ".env" file labled "CHANGE ME" to the desired values
 
 # Instructions
-1. Edit the excel file to match the template columns
+1. Edit the excel file to match the template columns and worksheet name
 2. Rename the excel file to "procedure_schedule.xlsx"
 3. Run `python .\spreadsheet_parser.py`
 4. Wait for the "Done with excel cleanup" message
