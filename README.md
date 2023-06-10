@@ -11,6 +11,9 @@ This inference is done after the execution of the practice_fusion_scrapper.py an
 1. Install [Python](https://www.python.org/downloads/) (version 3.10 or greater)
 2. Install the packages in [this section](#requirements-outside-of-python-modules)
 3. Run `python -m pip install -r requirements.txt`
+4. Duplicate the ".env.example" file
+5. Rename it to ".env"
+6. Change the fields in the ".env" file labled "CHANGE ME" to the desired values
 
 # Instructions
 1. Edit the excel file to match the template columns
