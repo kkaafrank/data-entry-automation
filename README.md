@@ -25,6 +25,7 @@ __Note:__ DO NOT close or minimize the browser window that is opened
 9. _Optional but recommended:_ Check the excel file for bad/empty fields
 10. Fill in the "Ethnicity" and "Race" columns of the excel file using the numbers in the [enumerations section](#enumerations)
 11. Run `python .\system13_entry.py`
+__Note:__ DO NOT close or minimize the browser window that is opened
 12. Wait for the "Done with System13 entry" message
 
 # Requirements outside of Python modules
