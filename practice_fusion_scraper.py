@@ -7,16 +7,17 @@ from pdf2image import convert_from_path
 from PIL import Image
 import pytesseract
 
+import sys
 import difflib
 import datetime
 import openpyxl
 import PySimpleGUI as sg
-import json
 import os
 from time import sleep
 
 from config import config
 pytesseract.pytesseract.tesseract_cmd = config['tesseract_path']
+COLUMN_NAME_MAPPING: dict = config['column_name_mapping']
 
 
 def practice_fusion_login(driver: webdriver.Chrome):
@@ -68,7 +69,7 @@ def go_to_charts(driver: webdriver.Chrome):
 
 
 def get_date_of_birth(patient_data, row: int) -> str:
-    patient_dob: datetime.datetime = patient_data.cell(row, config['column_name_mapping']['DOB']).value
+    patient_dob: datetime.datetime = patient_data.cell(row, COLUMN_NAME_MAPPING['DOB']).value
     patient_dob_str: str = patient_dob.strftime('%m/%d/%Y')
 
     return patient_dob_str
@@ -82,8 +83,8 @@ def enter_date_of_birth(driver: webdriver.Chrome, dob: str):
 
 
 def get_patient_full_name(patient_data, row: int) -> str:
-    patient_first_name: str = patient_data.cell(row, config['column_name_mapping']['FIRST NAME']).value
-    patient_last_name: str = patient_data.cell(row, config['column_name_mapping']['LAST NAME']).value
+    patient_first_name: str = patient_data.cell(row, COLUMN_NAME_MAPPING['FIRST NAME']).value
+    patient_last_name: str = patient_data.cell(row, COLUMN_NAME_MAPPING['LAST NAME']).value
     patient_full_name: str = f'{patient_first_name} {patient_last_name}'
 
     return patient_full_name
@@ -296,7 +297,11 @@ if __name__ == '__main__':
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
     driver.get(config['pf_url'])
-    practice_fusion_login(driver)
+
+    login_successful: bool = practice_fusion_login(driver)
+    if not login_successful:
+        sys.exit('Login unsuccessful. Please check username, password, and two factor authentication code.')
+
     sleep(3) # give time for webpage to load
     go_to_charts(driver)
     sleep(1) # give time for webpage to load
@@ -320,18 +325,18 @@ if __name__ == '__main__':
             continue
 
         address_1, address_2, city, state, zip_code = address_results
-        patient_data.cell(row_index, config['column_name_mapping']["ADDRESS LINE 1"], address_1)
-        patient_data.cell(row_index, config['column_name_mapping']["ADDRESS LINE 2"], address_2)
-        patient_data.cell(row_index, config['column_name_mapping']["CITY"], city)
-        patient_data.cell(row_index, config['column_name_mapping']["STATE"], state)
-        patient_data.cell(row_index, config['column_name_mapping']["ZIP CODE"], zip_code)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING["ADDRESS LINE 1"], address_1)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING["ADDRESS LINE 2"], address_2)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING["CITY"], city)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING["STATE"], state)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING["ZIP CODE"], zip_code)
 
         sex: str = get_patient_sex(driver)
-        patient_data.cell(row_index, config['column_name_mapping']['SEX'], sex)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING['SEX'], sex)
 
         navigate_to_documents_tab(driver)
-        operation_date: datetime.datetime = patient_data.cell(row_index, config['column_name_mapping']['DATE']).value
-        operation_type: str = patient_data.cell(row_index, config['column_name_mapping']['PROCEDURE']).value
+        operation_date: datetime.datetime = patient_data.cell(row_index, COLUMN_NAME_MAPPING['DATE']).value
+        operation_type: str = patient_data.cell(row_index, COLUMN_NAME_MAPPING['PROCEDURE']).value
         navigation_successful = navigate_to_desired_document(driver, operation_type, operation_date)
         if not navigation_successful:
             print(f'Unable to find {operation_type} document for {patient_name} on {operation_date.strftime("%m/%d")} (excel row: {row_index})')
@@ -341,9 +346,9 @@ if __name__ == '__main__':
         pdf_text: str = get_text_from_pdf(pdf_file_path)
         id, procedure_code, diagnosis_code = parse_pdf_text(pdf_text)
 
-        patient_data.cell(row_index, config['column_name_mapping']["PROCEDURE ID"], id)
-        patient_data.cell(row_index, config['column_name_mapping']["PROCEDURE CODE"], procedure_code)
-        patient_data.cell(row_index, config['column_name_mapping']["DIAGNOSIS"], diagnosis_code)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING["PROCEDURE ID"], id)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING["PROCEDURE CODE"], procedure_code)
+        patient_data.cell(row_index, COLUMN_NAME_MAPPING["DIAGNOSIS"], diagnosis_code)
 
         workbook.save(f'data/{config["cleaned_workbook_name"]}')
 
