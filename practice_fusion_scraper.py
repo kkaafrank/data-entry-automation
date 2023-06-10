@@ -60,7 +60,7 @@ def enter_2fa_code(driver: webdriver.Chrome) -> bool:
     """Helps automate the 2fa process
 
     driver: selenium webpage driver
-    return: if 2fa was successful
+    return: if 2fa was entered
     """
     code: str = sg.popup_get_text(message='Enter two factor authentication code:', keep_on_top=True)
     
@@ -77,6 +77,11 @@ def enter_2fa_code(driver: webdriver.Chrome) -> bool:
 
 
 def validate_2fa(driver: webdriver.Chrome) -> bool:
+    """Checks if 2fa code was correct
+
+    driver: selenium webpage driver
+    return: if 2fa code was correct
+    """
     try:
         sleep(.5)
         driver.find_element(By.XPATH, config['pf_wrong_code_xpath'])
@@ -87,6 +92,10 @@ def validate_2fa(driver: webdriver.Chrome) -> bool:
 
 
 def go_to_charts(driver: webdriver.Chrome):
+    """Goes to the charts tab of practice fusion
+
+    driver: selenium webpage driver
+    """
     sidebar_elements: list[WebElement] = driver.find_elements(By.CLASS_NAME, config['pf_sidebar_label_class'])
     charts_label: WebElement = [element for element in sidebar_elements 
                                 if element.text == config['pf_charts_element_text']][0]
@@ -94,12 +103,23 @@ def go_to_charts(driver: webdriver.Chrome):
 
 
 def get_date_of_birth(patient_data, row: int) -> str:
+    """Gets the date of birth from the excel sheet
+
+    patient_data: openpyxl excel sheet
+    row: the row number of the current patient
+    return: date of birth formatted as a string - mm/dd/yyyy
+    """
     patient_dob: datetime.datetime = patient_data.cell(row, COLUMN_NAME_MAPPING['DOB']).value
     patient_dob_str: str = patient_dob.strftime('%m/%d/%Y')
 
     return patient_dob_str
 
 def enter_date_of_birth(driver: webdriver.Chrome, dob: str):
+    """Enters the date of birth in the practice fusion patient chart search bar
+
+    driver: selenium webpage driver
+    dob: date of birth as a string - mm/dd/yyyy
+    """
     patient_search_element: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_patient_search_css_select'])
     patient_search_element.send_keys(f'{dob}')
     sleep(.5)
@@ -108,6 +128,12 @@ def enter_date_of_birth(driver: webdriver.Chrome, dob: str):
 
 
 def get_patient_full_name(patient_data, row: int) -> str:
+    """Gets the first and last name of the patient from the excel file and concatenate them
+
+    patient_data: openpyxl excel sheet
+    row: the row number of the current patient
+    return: full name of the patient - "<first_name> <last_name>"
+    """
     patient_first_name: str = patient_data.cell(row, COLUMN_NAME_MAPPING['FIRST NAME']).value
     patient_last_name: str = patient_data.cell(row, COLUMN_NAME_MAPPING['LAST NAME']).value
     patient_full_name: str = f'{patient_first_name} {patient_last_name}'
@@ -116,10 +142,18 @@ def get_patient_full_name(patient_data, row: int) -> str:
 
 
 def navigate_to_patient_info(driver: webdriver.Chrome, full_name: str) -> bool:
+    """Selects the patient with the closest matching name to the given full name
+
+    driver: selenium webpage driver
+    full_name: the full name of the patient - "<FirstName> <LastName>"
+    return: if a matching patient was found
+    """
     search_patient_first_names: list[WebElement] = driver.find_elements(
         By.CSS_SELECTOR, config['pf_first_name_css_select'])
     search_patient_last_names: list[WebElement] = driver.find_elements(
         By.CSS_SELECTOR, config['pf_last_name_css_select'])
+    
+    # gets list of patient names that match the DOB
     full_name_element_mapping: dict = {}
     for first_name_ele, last_name_ele in zip(search_patient_first_names, search_patient_last_names):
         search_first_name: str = first_name_ele.text.lower()
@@ -127,6 +161,7 @@ def navigate_to_patient_info(driver: webdriver.Chrome, full_name: str) -> bool:
         search_full_name: str = f'{search_first_name} {search_last_name}'
         full_name_element_mapping[search_full_name] = first_name_ele
 
+    # finds the one that is closest to the given name
     closest_matches: str = difflib.get_close_matches(
         word=full_name,
         possibilities=full_name_element_mapping.keys(),
@@ -142,25 +177,41 @@ def navigate_to_patient_info(driver: webdriver.Chrome, full_name: str) -> bool:
 
 
 def navigate_to_documents_tab(driver: webdriver.Chrome):
+    """Navigates to the patient's document tab
+    
+    driver: selenium webpage driver
+    """
     document_tab_element: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_documents_tab_css_select'])
     document_tab_element.click()
     sleep(1)
 
+    # opens the signed vs unsigned document dropdown
     document_filter_dropdown: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_documents_filter_css_select'])
     document_filter_dropdown.click()
     sleep(.5)
 
+    # selects the signed documents filter
     signed_documents_button: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_signed_documents_css_select'])
     signed_documents_button.click()
     sleep(1)
 
+
 def navigate_to_profile_tab(driver: webdriver.Chrome):
+    """Navigates the the patient's profile tab
+
+    driver: selenium webpage driver
+    """
     document_tab_element: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_profile_tab_css_select'])
     document_tab_element.click()
     sleep(1)
 
 
 def get_patient_address(driver: webdriver.Chrome) -> tuple[str, str, str, str] | bool:
+    """Gets the patient address from the patient profile
+
+    driver: selenium webpage driver
+    return: (address_line_1, address_line_2, city, state, zip_code) or False if no address is found
+    """
     try:
         address_line_1: str = driver.find_element(By.CSS_SELECTOR, config['pf_address1_css_select']).text
         address_line_2: str = driver.find_element(By.CSS_SELECTOR, config['pf_address2_css_select']).text
@@ -178,6 +229,10 @@ def get_patient_address(driver: webdriver.Chrome) -> tuple[str, str, str, str] |
 
 
 def get_patient_sex(driver: webdriver.Chrome):
+    """Gets the patient's sex from the practice fusion header
+
+    driver: selenium webpage driver
+    """
     age_and_sex_element: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_sex_css_select'])
     sex: str = age_and_sex_element.text[-1]
 
@@ -185,6 +240,13 @@ def get_patient_sex(driver: webdriver.Chrome):
 
 
 def navigate_to_desired_document(driver: webdriver.Chrome, operation: str, operation_date: datetime.datetime) -> bool:
+    """Finds the document that matches the operation
+
+    driver: selenium webpage driver
+    operation: the operation type - used to find the corresponding document type
+    operation_date: the date of the operation - used to filter results, searches for documents uploaded with 10 days of this date
+    return: if a corresponding document was found
+    """
     documents_container: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_document_container_css_select'])
     documents: list[WebElement] = documents_container.find_elements(By.XPATH, config['pf_document_row_xpath'])
     document_found: bool = False
@@ -192,20 +254,25 @@ def navigate_to_desired_document(driver: webdriver.Chrome, operation: str, opera
     for document in documents:
         document_information_containers: list[WebElement] = document.find_elements(By.XPATH, config['xpath_child_selector'])
         
+        # finds the document type (operation name)
         document_type: WebElement = document_information_containers[2]
         document_type_div: WebElement = document_type.find_element(By.XPATH, config['xpath_child_selector'])
         document_type_str: str = document_type_div.find_element(By.XPATH, config['xpath_child_selector']).text
 
+        # skips if document type doesnt match
         if operation.strip().lower() not in document_type_str.lower():
             continue
 
+        # finds the document upload date and converts to a string
         document_date_str: WebElement = document.find_elements(By.XPATH, config['xpath_child_selector'])[5].text
         document_date: datetime.datetime = datetime.datetime.strptime(document_date_str, '%m/%d/%Y')
-        end_date_range: datetime.datetime = operation_date + datetime.timedelta(days=10)
+        end_date_range: datetime.datetime = operation_date + datetime.timedelta(days=10) # date range to check
 
+        # skips if document was not uploaded within the specified number of days
         if not (operation_date <= document_date <= end_date_range):
             continue
 
+        # continues to the document page
         document_link_container: WebElement = document_information_containers[1]
         document_link_div: WebElement = document_link_container.find_element(By.XPATH, config['xpath_child_selector'])
         document_link_element: WebElement = document_link_div.find_element(By.XPATH, config['xpath_child_selector'])
@@ -218,6 +285,13 @@ def navigate_to_desired_document(driver: webdriver.Chrome, operation: str, opera
 
 
 def download_document(driver: webdriver.Chrome, patient_name: str, date: datetime.datetime, operation_type: str) -> str:
+    """Downloads the operation document
+
+    patient_name: the patient name - used to rename the downloaded files
+    date: date of operation - used to rename the downloaded files
+    operation_type: operation type - used to rename the downloaded files
+    return: the name of the downloaded pdf file
+    """
     print_buttons_container: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_print_buttons_css_select'])
     download_button: WebElement = print_buttons_container.find_element(By.XPATH, config['pf_download_button_xpath'])
     download_button.click()
@@ -242,6 +316,11 @@ def download_document(driver: webdriver.Chrome, patient_name: str, date: datetim
 
 
 def get_text_from_pdf(pdf_file_path: str) -> str:
+    """Converts the text in first page of the pdf to a string
+
+    pdf_file_path: path to the pdf file
+    return: the text in the first page of the pdf file
+    """
     pdf_pages: list[Image.Image] = convert_from_path(pdf_file_path, 300)
 
     first_page: Image.Image = pdf_pages[0]
@@ -250,7 +329,13 @@ def get_text_from_pdf(pdf_file_path: str) -> str:
     return first_page_text
 
 
+# TODO: support for multiple operations in one file
 def parse_pdf_text(pdf_text: str) -> tuple[str, str, str]:
+    """Gets the ID, procedure code, and diagnosis code from the pdf text
+
+    pdf_text: the text in the pdf file
+    return: (id, procedure_code, diagnosis_code)
+    """
     pdf_text_by_line: list[str] = pdf_text.split('\n')
 
     id: str = ''
@@ -271,6 +356,10 @@ def parse_pdf_text(pdf_text: str) -> tuple[str, str, str]:
 
 
 def close_patient_charts_tab(driver: webdriver.Chrome):
+    """Closes the currently opened patient chart tab
+
+    driver: selenium webpage driver
+    """
     try:
         potential_patient_list_containers: list[WebElement] = driver.find_elements(By.CLASS_NAME, config['pf_close_charts_container_class'])
         patient_list_container: WebElement
@@ -304,7 +393,6 @@ def close_patient_charts_tab(driver: webdriver.Chrome):
         pass
 
 
-# TODO: randomly will open "quick view" menu, causes crashes
 # TODO: turn sleeps into sophisticated waits
 # https://selenium-python.readthedocs.io/waits.html#explicit-waits
 def main():
@@ -312,16 +400,18 @@ def main():
     workbook = openpyxl.load_workbook(f'data/{config["cleaned_workbook_name"]}')
     patient_data = workbook[config['main_worksheet_name']]
     
-    # loads the practice fusion webpage
+    # chrome options
     chrome_options = webdriver.ChromeOptions()
     prefs = {
-        'download.default_directory': config['pf_pdf_download_location'],
-        'profile.default_content_settings.popups': False,
+        'download.default_directory': config['pf_pdf_download_location'], # setting download location
+        'profile.default_content_settings.popups': False, # removes download prompt
     }
     chrome_options.add_experimental_option('prefs', prefs)
-    chrome_options.add_argument('log-level=3')
+    chrome_options.add_argument('log-level=3') # removes warning/error logging from console
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
+
+    # loads the practice fusion webpage
     driver.get(config['pf_url'])
 
     login_successful: bool = practice_fusion_login(driver)
@@ -330,7 +420,9 @@ def main():
         return
 
     sleep(3) # give time for webpage to load
+
     go_to_charts(driver)
+
     sleep(1) # give time for webpage to load
 
     for row_index in range(2, patient_data.max_row + 1):

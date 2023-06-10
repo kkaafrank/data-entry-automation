@@ -31,6 +31,10 @@ def system13_login(driver: webdriver.Chrome):
 
 
 def navigate_to_web_claim_entry(driver: webdriver.Chrome):
+    """Navigates to the web claim entry page
+
+    driver: selenium webpage driver
+    """
     dashboard_button_container: WebElement = driver.find_element(By.ID, config['s13_dashboard_container_id'])
     dashboard_buttons: list[WebElement] = dashboard_button_container.find_elements(By.XPATH, config['xpath_child_selector'])
     web_claim_entry_button = WebElement = dashboard_buttons[0]
@@ -41,6 +45,13 @@ def navigate_to_web_claim_entry(driver: webdriver.Chrome):
 
 def enter_in_search_box(driver: webdriver.Chrome, parent_element: WebElement,
                         value: str, extra_down_input: bool = False):
+    """Enters text in a dropdown search box
+
+    driver: selenium webpage driver
+    parent_element: the inital dropdown element
+    value: the string to enter in the dropdown
+    extra_down_input: if an extra down input is needed to select the desired value (some strings have multiple results)
+    """
     parent_element.send_keys(Keys.ENTER)
     search_bar: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_search_dropdown_css_select'])
     search_bar.send_keys(value)
@@ -53,53 +64,72 @@ def enter_in_search_box(driver: webdriver.Chrome, parent_element: WebElement,
 
 
 def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
+    """Fills out the information needed for the patient information page
+
+    driver: selenium webpage driver
+    claim_information: openpyxl excel sheet
+    """
+    # patient control number
     pcn_field: WebElement = driver.find_element(By.ID, config['s13_pcn_id'])
     pcn_field.send_keys(claim_information['id'])
     sleep(.5)
 
+    # medical record number
     mrn_field: WebElement = driver.find_element(By.ID, config['s13_mrn_id'])
     mrn_field.send_keys(claim_entry_information['id'])
     sleep(.5)
 
+    # first name
     first_name_field: WebElement = driver.find_element(By.ID, config['s13_first_name_id'])
     first_name_field.send_keys(claim_entry_information['first_name'])
     sleep(.5)
 
+    # last name
     last_name_field: WebElement = driver.find_element(By.ID, config['s13_last_name_id'])
     last_name_field.send_keys(claim_entry_information['last_name'])
     sleep(.5)
 
+    # address line 1
     address_1_field: WebElement = driver.find_element(By.ID, config['s13_address_1_id'])
     address_1_field.send_keys(claim_entry_information['address_1'])
     sleep(.5)
 
+    # address line 2
     if claim_entry_information['address_2'] is not None:
         address_2_field: WebElement = driver.find_element(By.ID, config['s13_address_2_id'])
         address_2_field.send_keys(claim_entry_information['address_2'])
     sleep(.5)
 
+    # city
     city_field: WebElement = driver.find_element(By.ID, config['s13_city_id'])
     city_field.send_keys(claim_entry_information['city'])
     sleep(.5)
 
+    # state
     state_field: WebElement = driver.find_element(By.ID, config['s13_state_id'])
     state_field.send_keys(claim_entry_information['state'])
     sleep(.5)
 
+    # zip code
     zip_code_field: WebElement = driver.find_element(By.ID, config['s13_zip_id'])
     zip_code_field.send_keys(claim_entry_information['zip_code'])
     sleep(.5)
 
-    # "united states" is a substring of "united states minor outlying islands"
+    # country
+    # needs extra down input
+    #   "united states" is a substring of "united states minor outlying islands"
     country_field: WebElement = driver.find_element(By.ID, config['s13_country_id'])
     enter_in_search_box(driver, country_field, config['country'], True)
     sleep(.5)
 
+    # ssn
     ssn_field: WebElement = driver.find_element(By.ID, config['s13_ssn_id'])
     ssn_field.send_keys(config['ssn'])
     sleep(.5)
 
-    # "male" is a substring of "female"
+    # sex
+    # needs extra down input
+    #   "male" is a substring of "female"
     sex_field: WebElement = driver.find_element(By.ID, config['s13_sex_id'])
     if claim_entry_information['sex'] == 'M':
         enter_in_search_box(driver, sex_field, claim_entry_information['sex'], True)
@@ -107,71 +137,98 @@ def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
         enter_in_search_box(driver, sex_field, claim_entry_information['sex'], False)
     sleep(.5)
 
+    # ethnicity
     ethnicity_field: WebElement = driver.find_element(By.ID, config['s13_ethnicity_id'])
     enter_in_search_box(driver, ethnicity_field, claim_entry_information['ethnicity'], False)
     sleep(.5)
 
+    # date of birth
     dob_field: WebElement = driver.find_element(By.ID, config['s13_dob_id'])
     dob_field.send_keys(claim_entry_information['dob'])
     sleep(.5)
 
+    # race
     race_field: WebElement = driver.find_element(By.ID, config['s13_race_id'])
     enter_in_search_box(driver, race_field, claim_entry_information['race'], False)
     sleep(.5)
 
+    # date of operation
     bill_from_field: WebElement = driver.find_element(By.ID, config['s13_bill_from_id'])
     bill_from_field.send_keys(claim_entry_information['date'])
     sleep(.5)
 
+    # end date of operation (currently same as the date of operation)
     bill_to_field: WebElement = driver.find_element(By.ID, config['s13_bill_to_id'])
     sleep(.5)
     bill_to_field.send_keys(claim_entry_information['date'])
 
+    # claim frequency
     claim_frequency_field: WebElement = driver.find_element(By.ID, config['s13_frequency_id'])
     enter_in_search_box(driver, claim_frequency_field, config['frequency_code'], False)
     sleep(.5)
 
+    # admission type
     admission_type_field: WebElement = driver.find_element(By.ID, config['s13_admission_type_id'])
     enter_in_search_box(driver, admission_type_field, config['admission_type'], False)
     sleep(.5)
 
+    # patient origin
     origin_field: WebElement = driver.find_element(By.ID, config['s13_origin_id'])
     enter_in_search_box(driver, origin_field, config['origin_code'], False)
     sleep(.5)
 
+    # patient discharge status
     patient_status_field: WebElement = driver.find_element(By.ID, config['s13_patient_status_id'])
     enter_in_search_box(driver, patient_status_field, config['patient_status_code'], False)
     sleep(.5)
 
+    # facility type
     facility_field: WebElement = driver.find_element(By.ID, config['s13_facility_id'])
     enter_in_search_box(driver, facility_field, config['facility_code'], False)
 
 
 def enter_payers_fields(driver: webdriver.Chrome, claim_entry_information: dict):
+    """Fills out the information for the payers page
+
+    driver: selenium webpage driver
+    claim_information: openpyxl excel sheet
+    """
+    # primary payer type
     primary_payer_type_field: WebElement = driver.find_element(By.ID, config['s13_primary_payer_type_id'])
     enter_in_search_box(driver, primary_payer_type_field, claim_entry_information['insurance_type'], False)
 
+    # primary payer name
     primary_payer_name_field: WebElement = driver.find_element(By.ID, config['s13_primary_payer_name_id'])
     primary_payer_name_field.send_keys(claim_entry_information['insurance_name'])
 
 
 def enter_charges_fields(driver: webdriver.Chrome, claim_entry_information: dict):
+    """Fills out the information needed for the charges fields
+
+    driver: selenium webpage driver
+    claim_information: openpyxl excel sheet
+    """
+    # revenue code
     revenue_code_field: WebElement = driver.find_element(By.ID, config['s13_revenue_code_id'])
     revenue_code_field.send_keys(config['s13_revenue_code'])
     sleep(.5)
 
+    # procedure code
     proceedure_code_field: WebElement = driver.find_element(By.ID, config['s13_procedure_code_id'])
     enter_in_search_box(driver, proceedure_code_field, claim_entry_information['procedure_code'], False)
     sleep(.5)
 
+    # procedure date
     procedure_date_field: WebElement = driver.find_element(By.ID, config['s13_procedure_date_id'])
     procedure_date_field.send_keys(claim_entry_information['date'])
     sleep(.5)
 
+    # end date of procedure (currently same as the date of operation)
     procedure_date_to_field: WebElement = driver.find_element(By.ID, config['s13_procedure_to_date_id'])
     sleep(.5)
     procedure_date_to_field.send_keys(claim_entry_information['date'])
 
+    # unit rate
     rate_field: WebElement = driver.find_element(By.ID, config['s13_unit_rate_id'])
     if claim_entry_information['procedure_code'] == config['egd_code']:
         rate_field.send_keys(config['s13_edg_charge'])
@@ -179,20 +236,30 @@ def enter_charges_fields(driver: webdriver.Chrome, claim_entry_information: dict
         rate_field.send_keys(config['s13_colon_charge'])
     sleep(.5)
 
+    # quantity
     quantity_field: WebElement = driver.find_element(By.ID, config['s13_quantity_id'])
     quantity_field.send_keys(config['s13_charge_quantity'])
     sleep(.5)
 
+    # unit
     # "un" is a substring of "international unit"
     units_field: WebElement = driver.find_element(By.ID, config['s13_unit_id'])
     enter_in_search_box(driver, units_field, config['s13_charge_unit'], True)
     sleep(.5)
 
+    # charge qualifier
     qualifier_field: WebElement = driver.find_element(By.ID, config['s13_charge_qualifier_id'])
     enter_in_search_box(driver, qualifier_field, config['s13_qualifier_code'], False)
 
 
 def enter_diagnoses_fields(driver: webdriver.Chrome, diagnosis_code: str):
+    """Fills out the information needed for the diagnoses page
+
+    Only does the primary diagnosis
+
+    driver: selenium webpage driver
+    claim_information: openpyxl excel sheet
+    """
     diagnosis_code = diagnosis_code.replace('.', '')
 
     principal_diagnosis_field: WebElement = driver.find_element(By.ID, config['s13_principal_diagnosis_id'])
@@ -204,23 +271,36 @@ def enter_diagnoses_fields(driver: webdriver.Chrome, diagnosis_code: str):
 
 
 def enter_practitioners_fields(driver: webdriver.Chrome):
+    """Fills out the information needed for the practitioners page
+
+    driver: selenium webpage driver
+    claim_information: openpyxl excel sheet
+    """
+    # practitioner id
     practitioner_id_field: WebElement = driver.find_element(By.ID, config['s13_practitioner_id_id'])
     practitioner_id_field.send_keys(config['practitioner_id'])
     sleep(.5)
 
+    # practitioner first name
     practitioner_first_name_field: WebElement = driver.find_element(By.ID, config['s13_practitioner_first_name_id'])
     practitioner_first_name_field.send_keys(config['practitioner_first_name'])
     sleep(.5)
 
+    # practitioner last name
     practitioner_last_name_field: WebElement = driver.find_element(By.ID, config['s13_practitioner_last_name_id'])
     practitioner_last_name_field.send_keys(config['practitioner_last_name'])
     sleep(.5)
 
+    # practitioner type
     practitioner_type_field: WebElement = driver.find_element(By.ID, config['s13_practitioner_type_id'])
     enter_in_search_box(driver, practitioner_type_field, config['practitioner_type'], False)
 
 
 def navigate_to_next_section(driver: webdriver.Chrome):
+    """Navigates to the next page/section
+
+    driver: selenium webpage driver
+    """
     sleep(1)
     
     next_section_button: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_next_section_css_select'])
@@ -230,6 +310,10 @@ def navigate_to_next_section(driver: webdriver.Chrome):
 
 
 def submit_claim(driver: webdriver.Chrome):
+    """Submits the claim for error checking
+
+    driver: selenium webpage driver
+    """
     sleep(1)
     
     check_for_errors_button: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_check_for_errors_css_select'])
@@ -239,6 +323,10 @@ def submit_claim(driver: webdriver.Chrome):
 
 
 def add_new_claim(driver: webdriver.Chrome):
+    """Starts a new claim
+
+    driver: selenium webpage driver
+    """
     sleep(1)
 
     add_new_claim_button: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_new_claim_css_select'])

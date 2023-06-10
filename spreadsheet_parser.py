@@ -135,7 +135,12 @@ def separate_combined_procedures(worksheet):
 
 
 def derive_insurance_type(worksheet):
-    self_pay_spellings: list[str] = ['self-pay', 'self pay', 'selfpay']
+    """Derives insurance types from the insurance string
+
+    worksheet: openpyxl worksheet
+    return: edited openpyxl worksheet
+    """
+    self_pay_spellings: list[str] = config['self_pay_spellings'].split(',')
     for row_index in range(worksheet.max_row, 1, -1):
         insurace_provider: str = worksheet.cell(row_index, config['column_name_mapping']['INSURANCE']).value.lower()
         insurance_type: str = ''
@@ -155,6 +160,11 @@ def derive_insurance_type(worksheet):
 
 
 def strip_name_fields(worksheet):
+    """Removes leading and trailling spaces in the name fields
+
+    worksheet: openpyxl worksheet
+    return: edited openpyxl worksheet
+    """
     for row_index in range(worksheet.max_row, 1, -1):
         first_name: str = worksheet.cell(row_index, config['column_name_mapping']['FIRST NAME']).value
         last_name: str = worksheet.cell(row_index, config['column_name_mapping']['LAST NAME']).value
