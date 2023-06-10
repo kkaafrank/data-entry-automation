@@ -4,15 +4,35 @@ A code repository to automate data entry into the system13 audit website
 # Goals
 The goal of this repository is to completely automate the data entry into the system13 claims audit website  
 Currently, this is not possible with the data I have available to me  
-Inferences (manual work) need to be made regarding a patients ethnicity and race  
+Inferences (manual work) need to be made regarding a patients ethnicity and race, and manual cleanup of the initial excel file is needed  
 This inference is done after the execution of the practice_fusion_scrapper.py and before system13_entry.py  
+
+# Setup
+1. Install [Python](https://www.python.org/downloads/) (version 3.10 or greater)
+2. Install the packages in [this section](#requirements-outside-of-python-modules)
+3. Run `python -m pip install -r requirements.txt`
+
+# Instructions
+1. Edit the excel file to match the template columns
+2. Rename the excel file to "procedure_schedule.xlsx"
+3. Run `python .\spreadsheet_parser.py`
+4. Wait for the "Done with excel cleanup" message
+5. _Optional but recommended:_ Check the excel file for bad fields
+6. Run `python .\practice_fusion_scraper.py`  
+__Note:__ DO NOT close or minimize the browser window that is opened
+7. Enter the two factor authentication code in the small blue popup
+8. Wait for the "Done with Practice Fusion scraping" message
+9. _Optional but recommended:_ Check the excel file for bad/empty fields
+10. Fill in the "Ethnicity" and "Race" columns of the excel file using the numbers in the [enumerations section](#enumerations)
+11. Run `python .\system13_entry.py`
+12. Wait for the "Done with System13 entry" message
 
 # Requirements outside of Python modules
 This automation codebase requires a couple packages outside of Python modules. Please download and install the following to run the code.
 
 [Poppler](https://poppler.freedesktop.org/) for converting PDFs to images.
 
-[Tesseract](https://tesseract-ocr.github.io/tessdoc/Installation.html) for OCR (converting images to text).
+[Tesseract](https://tesseract-ocr.github.io/tessdoc/Installation.html) for OCR (recognizing text in images).
 
 # Enumerations
 ## Sex Enumeration
@@ -33,11 +53,6 @@ U - Unknown
 
 ## Insurance Source Code Enumeration
 12 - PPO
-13 - POS
-14 - EPO
 16 - HMO
 BL - BCBS
-MA - Medicare Part A
-MB - Medicare Part B
-MC - Medicaid
 ZZ - Self-Pay
