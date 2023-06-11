@@ -292,6 +292,9 @@ def download_document(driver: webdriver.Chrome, patient_name: str, date: datetim
     operation_type: operation type - used to rename the downloaded files
     return: the name of the downloaded pdf file
     """
+    if not os.path.exists(config['pf_pdf_download_location']):
+        os.makedirs(config['pf_pdf_download_location'])
+
     print_buttons_container: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_print_buttons_css_select'])
     download_button: WebElement = print_buttons_container.find_element(By.XPATH, config['pf_download_button_xpath'])
     download_button.click()
