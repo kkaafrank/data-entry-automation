@@ -10,7 +10,9 @@ The goal of this repository is to completely automate the data entry into the sy
 3. Run `python -m pip install -r requirements.txt`
 4. Duplicate the ".env.example" file
 5. Rename it to ".env"
-6. Change the fields in the ".env" file labled "CHANGE ME" to the desired values
+6. Change the fields in the ".env" file labled "CHANGE ME" to the desired values  
+    - For the "excel_folder_name" I recommend setting it to "data" because it is already in the .gitignore
+    - Likewise, I recommend setting "pf_pdf_download_location" to "data\\patient_pdfs\\\\"
 
 # Instructions
 1. Edit the excel file to match the template columns and worksheet name
@@ -19,13 +21,13 @@ The goal of this repository is to completely automate the data entry into the sy
 4. Wait for the "Done with excel cleanup" message
 5. _Optional but recommended:_ Check the excel file for bad fields
 6. Run `python .\practice_fusion_scraper.py`  
-__Note:__ DO NOT close or minimize the browser window that is opened
+    - __Note:__ DO NOT close or minimize the browser window that is opened
 7. Enter the two factor authentication code in the small blue popup
 8. Wait for the "Done with Practice Fusion scraping" message
 9. _Optional but recommended:_ Check the excel file for bad/empty fields
 10. Fill in the "Ethnicity" and "Race" columns of the excel file using the numbers in the [enumerations section](#enumerations)
 11. Run `python .\system13_entry.py`
-__Note:__ DO NOT close or minimize the browser window that is opened
+    - __Note:__ DO NOT close or minimize the browser window that is opened
 12. Wait for the "Done with System13 entry" message
 
 # Requirements outside of Python modules
