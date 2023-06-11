@@ -179,7 +179,7 @@ def strip_name_fields(worksheet):
 
 
 if __name__ == '__main__':
-    workbook = openpyxl.load_workbook(f'data/{config["raw_patient_data"]}')
+    workbook = openpyxl.load_workbook(f'{config["excel_folder_name"]}/{config["raw_patient_data"]}')
     # remove unneeded sheets
     for sheet_name in workbook.sheetnames:
         if sheet_name != config['main_worksheet_name']:
