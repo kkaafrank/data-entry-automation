@@ -7,7 +7,7 @@ The goal of this repository is to completely automate the data entry into the sy
 # Setup
 1. Install [Python](https://www.python.org/downloads/) (version 3.10 or greater)
 2. Install the packages in [this section](#requirements-outside-of-python-modules)
-3. Add the `\*/bin` directories for the installed packages to your [PATH Environment Variable](https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ee537574(v=office.14))
+3. Add the `*/bin` directories for the installed packages to your [PATH Environment Variable](https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ee537574(v=office.14))
 4. Run `python -m pip install -r requirements.txt`
 5. Duplicate the ".env.example" file
 6. Rename it to ".env"
