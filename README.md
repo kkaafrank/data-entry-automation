@@ -7,10 +7,11 @@ The goal of this repository is to completely automate the data entry into the sy
 # Setup
 1. Install [Python](https://www.python.org/downloads/) (version 3.10 or greater)
 2. Install the packages in [this section](#requirements-outside-of-python-modules)
-3. Run `python -m pip install -r requirements.txt`
-4. Duplicate the ".env.example" file
-5. Rename it to ".env"
-6. Change the fields in the ".env" file labled "CHANGE ME" to the desired values  
+3. Add the `\*/bin` directories for the installed packages to your [PATH Environment Variable](https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ee537574(v=office.14))
+4. Run `python -m pip install -r requirements.txt`
+5. Duplicate the ".env.example" file
+6. Rename it to ".env"
+7. Change the fields in the ".env" file labled "CHANGE ME" to the desired values  
     - For the "excel_folder_name" I recommend setting it to "data" because it is already in the .gitignore
     - Likewise, I recommend setting "pf_pdf_download_location" to "data\\patient_pdfs\\\\"
 
