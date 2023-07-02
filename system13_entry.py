@@ -76,43 +76,43 @@ def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
 
     # medical record number
     mrn_field: WebElement = driver.find_element(By.ID, config['s13_mrn_id'])
-    mrn_field.send_keys(claim_entry_information['id'])
+    mrn_field.send_keys(claim_information['id'])
     sleep(.5)
 
     # first name
     first_name_field: WebElement = driver.find_element(By.ID, config['s13_first_name_id'])
-    first_name_field.send_keys(claim_entry_information['first_name'])
+    first_name_field.send_keys(claim_information['first_name'])
     sleep(.5)
 
     # last name
     last_name_field: WebElement = driver.find_element(By.ID, config['s13_last_name_id'])
-    last_name_field.send_keys(claim_entry_information['last_name'])
+    last_name_field.send_keys(claim_information['last_name'])
     sleep(.5)
 
     # address line 1
     address_1_field: WebElement = driver.find_element(By.ID, config['s13_address_1_id'])
-    address_1_field.send_keys(claim_entry_information['address_1'])
+    address_1_field.send_keys(claim_information['address_1'])
     sleep(.5)
 
     # address line 2
-    if claim_entry_information['address_2'] is not None:
+    if claim_information['address_2'] is not None:
         address_2_field: WebElement = driver.find_element(By.ID, config['s13_address_2_id'])
-        address_2_field.send_keys(claim_entry_information['address_2'])
+        address_2_field.send_keys(claim_information['address_2'])
     sleep(.5)
 
     # city
     city_field: WebElement = driver.find_element(By.ID, config['s13_city_id'])
-    city_field.send_keys(claim_entry_information['city'])
+    city_field.send_keys(claim_information['city'])
     sleep(.5)
 
     # state
     state_field: WebElement = driver.find_element(By.ID, config['s13_state_id'])
-    state_field.send_keys(claim_entry_information['state'])
+    state_field.send_keys(claim_information['state'])
     sleep(.5)
 
     # zip code
     zip_code_field: WebElement = driver.find_element(By.ID, config['s13_zip_id'])
-    zip_code_field.send_keys(claim_entry_information['zip_code'])
+    zip_code_field.send_keys(claim_information['zip_code'])
     sleep(.5)
 
     # country
@@ -131,36 +131,36 @@ def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
     # needs extra down input
     #   "male" is a substring of "female"
     sex_field: WebElement = driver.find_element(By.ID, config['s13_sex_id'])
-    if claim_entry_information['sex'] == 'M':
-        enter_in_search_box(driver, sex_field, claim_entry_information['sex'], True)
+    if claim_information['sex'] == 'M':
+        enter_in_search_box(driver, sex_field, claim_information['sex'], True)
     else:
-        enter_in_search_box(driver, sex_field, claim_entry_information['sex'], False)
+        enter_in_search_box(driver, sex_field, claim_information['sex'], False)
     sleep(.5)
 
     # ethnicity
     ethnicity_field: WebElement = driver.find_element(By.ID, config['s13_ethnicity_id'])
-    enter_in_search_box(driver, ethnicity_field, claim_entry_information['ethnicity'], False)
+    enter_in_search_box(driver, ethnicity_field, claim_information['ethnicity'], False)
     sleep(.5)
 
     # date of birth
     dob_field: WebElement = driver.find_element(By.ID, config['s13_dob_id'])
-    dob_field.send_keys(claim_entry_information['dob'])
+    dob_field.send_keys(claim_information['dob'])
     sleep(.5)
 
     # race
     race_field: WebElement = driver.find_element(By.ID, config['s13_race_id'])
-    enter_in_search_box(driver, race_field, claim_entry_information['race'], False)
+    enter_in_search_box(driver, race_field, claim_information['race'], False)
     sleep(.5)
 
     # date of operation
     bill_from_field: WebElement = driver.find_element(By.ID, config['s13_bill_from_id'])
-    bill_from_field.send_keys(claim_entry_information['date'])
+    bill_from_field.send_keys(claim_information['date'])
     sleep(.5)
 
     # end date of operation (currently same as the date of operation)
     bill_to_field: WebElement = driver.find_element(By.ID, config['s13_bill_to_id'])
     sleep(.5)
-    bill_to_field.send_keys(claim_entry_information['date'])
+    bill_to_field.send_keys(claim_information['date'])
 
     # claim frequency
     claim_frequency_field: WebElement = driver.find_element(By.ID, config['s13_frequency_id'])
