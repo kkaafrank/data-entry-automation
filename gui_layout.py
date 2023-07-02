@@ -55,16 +55,13 @@ def start_gui():
             break
 
         if event == parse_spreadsheet_key:
-            print('spreadsheet')
-            # spreadsheet_parser.parse_spreadsheet()
+            spreadsheet_parser.parse_spreadsheet()
 
         if event == get_patient_data_key:
-            print('get data')
-            # practice_fusion_scraper.get_all_patient_data()
+            practice_fusion_scraper.get_all_patient_data()
 
         if event == enter_claims_data_key:
-            print('enter_claims')
-            # system13_entry.enter_all_patient_data()
+            system13_entry.enter_all_patient_data()
 
 
 if __name__ == '__main__':
