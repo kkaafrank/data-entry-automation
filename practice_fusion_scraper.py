@@ -398,7 +398,7 @@ def close_patient_charts_tab(driver: webdriver.Chrome):
 
 # TODO: turn sleeps into sophisticated waits
 # https://selenium-python.readthedocs.io/waits.html#explicit-waits
-def main():
+def get_all_patient_data():
     # read the cleaned patient data
     workbook = openpyxl.load_workbook(f'data/{config["cleaned_workbook_name"]}')
     patient_data = workbook[config['main_worksheet_name']]
@@ -479,4 +479,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    get_all_patient_data()

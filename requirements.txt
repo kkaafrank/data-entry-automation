@@ -1,5 +1,7 @@
 openpyxl>=3.1.2
 python-dotenv>=1.0.0
 selenium>=4.9.1
-PySimpleGUI>=4.60.5
 pytesseract>=0.3.10
+pandas>=2.0.1
+PyInstaller>=5.13.0
+pysimplegui>=4.60.5

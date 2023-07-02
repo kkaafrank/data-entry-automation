@@ -337,7 +337,7 @@ def add_new_claim(driver: webdriver.Chrome):
 
 # TODO: turn sleeps into sophisticated waits
 # https://selenium-python.readthedocs.io/waits.html#explicit-waits
-if __name__ == '__main__':
+def enter_all_patient_data():
     workbook = openpyxl.load_workbook(f'data/{config["cleaned_workbook_name"]}')
     patient_data = workbook[config['main_worksheet_name']]
 
@@ -391,3 +391,6 @@ if __name__ == '__main__':
 
     driver.close()
     print('Done with System13 entry')
+
+if __name__ == '__main__':
+    enter_all_patient_data()
