@@ -338,6 +338,8 @@ def add_new_claim(driver: webdriver.Chrome):
 # TODO: turn sleeps into sophisticated waits
 # https://selenium-python.readthedocs.io/waits.html#explicit-waits
 def enter_all_patient_data():
+    """Main driver function for entering all patient claims data
+    """
     workbook = openpyxl.load_workbook(f'data/{config["cleaned_workbook_name"]}')
     patient_data = workbook[config['main_worksheet_name']]
 

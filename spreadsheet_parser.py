@@ -179,6 +179,8 @@ def strip_name_fields(worksheet):
 
 
 def parse_spreadsheet():
+    """Main driver function for the spreadsheet cleanup and parsing routine
+    """
     workbook = openpyxl.load_workbook(f'data/{config["raw_patient_data"]}')
     # remove unneeded sheets
     for sheet_name in workbook.sheetnames:
