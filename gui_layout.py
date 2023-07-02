@@ -3,10 +3,7 @@ import PySimpleGUI as psg
 import spreadsheet_parser
 import practice_fusion_scraper
 import system13_entry
-
-PARSE_SPREADSHEET_KEY: str = 'PARSE_SPREADSHEET'
-GET_PATIENT_DATA_KEY: str = 'GET_PATIENT_DATA'
-CLAIM_ENTRY_KEY: str = 'ENTER_CLAIM_INFO'
+from config import config
 
 def create_layout() -> list[list[psg.Element]]:
     parse_spreadsheet_text = psg.Text(
@@ -14,7 +11,7 @@ def create_layout() -> list[list[psg.Element]]:
     )
     parse_spreadsheet_button = psg.Button(
         button_text='Clean and Parse Spreadsheet',
-        key=PARSE_SPREADSHEET_KEY
+        key=config['parse_spreadsheet_key'],
     )
 
     get_patient_data_text = psg.Text(
@@ -22,7 +19,7 @@ def create_layout() -> list[list[psg.Element]]:
     )
     get_patient_data_button = psg.Button(
         button_text='Get Patient Data',
-        key=GET_PATIENT_DATA_KEY
+        key=config['get_patient_data_key'],
     )
 
     enter_claim_info_text = psg.Text(
@@ -30,7 +27,7 @@ def create_layout() -> list[list[psg.Element]]:
     )
     enter_claim_info_button = psg.Button(
         button_text='Enter Claims Info',
-        key=CLAIM_ENTRY_KEY,
+        key=config['claim_entry_key'],
     )
 
     layout = [
@@ -47,21 +44,25 @@ def start_gui():
     layout = create_layout()
     window = psg.Window('Clams Entry Automation', layout=layout)
 
+    parse_spreadsheet_key: str = config['parse_spreadsheet_key']
+    get_patient_data_key: str = config['get_patient_data_key']
+    enter_claims_data_key: str = config['claim_entry_key']
+
     while True:
         event, _ = window.read()
 
         if event == psg.WIN_CLOSED:
             break
 
-        if event == PARSE_SPREADSHEET_KEY:
+        if event == parse_spreadsheet_key:
             print('spreadsheet')
             # spreadsheet_parser.parse_spreadsheet()
 
-        if event == GET_PATIENT_DATA_KEY:
+        if event == get_patient_data_key:
             print('get data')
             # practice_fusion_scraper.get_all_patient_data()
 
-        if event == CLAIM_ENTRY_KEY:
+        if event == enter_claims_data_key:
             print('enter_claims')
             # system13_entry.enter_all_patient_data()
 

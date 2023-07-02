@@ -1,7 +1,7 @@
 import re
-import json
 import openpyxl
 import datetime
+import PySimpleGUI as psg
 
 from config import config
 
@@ -178,10 +178,68 @@ def strip_name_fields(worksheet):
     return worksheet
 
 
+def create_file_selection_layout() -> list[list[psg.Element]]:
+    file_prompt_text = psg.Text(
+        text='Select Initial Spreadsheet:',
+    )
+    file_input = psg.Input(
+        key=config['spreadsheet_input_key'],
+        enable_events=True,
+    )
+    file_browse_button = psg.FileBrowse(
+        button_text='Browse Files',
+        file_types=(('Excel Spreadsheets', '.xlsx'), ('All Files', '.*')),
+    )
+    file_gui_layout = [
+        [file_prompt_text],
+        [file_input, file_browse_button],
+        [psg.Submit(key=config['ok_key']), psg.Cancel(config['cancel_key'])]
+    ]
+    return file_gui_layout
+
+def get_initial_spreadsheet_file() -> str:
+    layout = create_file_selection_layout()
+    window = psg.Window(
+        title='Select Spreadsheet File',
+        layout=layout,
+    )
+
+    ok_key: str = config['ok_key']
+    cancel_key: str = config['cancel_key']
+
+    while True:
+        event, values = window.read()
+
+        if event == psg.WIN_CLOSED or event == cancel_key:
+            window.Close()
+            return None
+        
+        if event == ok_key:
+            window.Close()
+            break
+
+    file_name: str = values[config['spreadsheet_input_key']]
+    return file_name
+
+
+def check_valid_excel_name(file_name: str) -> bool:
+    if not file_name:
+        return False
+    elif '.xlsx' not in file_name:
+        return False
+    
+    return True
+
+
 def parse_spreadsheet():
     """Main driver function for the spreadsheet cleanup and parsing routine
     """
-    workbook = openpyxl.load_workbook(f'data/{config["raw_patient_data"]}')
+    file_name: str = get_initial_spreadsheet_file()
+    is_valid_file_name: bool = check_valid_excel_name(file_name)
+    if not is_valid_file_name:
+        return
+
+    workbook = openpyxl.load_workbook(file_name)
     # remove unneeded sheets
     for sheet_name in workbook.sheetnames:
         if sheet_name != config['main_worksheet_name']:
