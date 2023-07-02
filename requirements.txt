@@ -5,3 +5,4 @@ pytesseract>=0.3.10
 pandas>=2.0.1
 PyInstaller>=5.13.0
 pysimplegui>=4.60.5
+pdf2image>=1.16.3
