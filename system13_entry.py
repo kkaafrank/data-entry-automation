@@ -29,6 +29,12 @@ def system13_login(driver: webdriver.Chrome):
 
     sleep(1)
 
+    error_elements: list[WebElement] = driver.find_elements(By.CSS_SELECTOR, config['s13_login_error_css_select'])
+    if len(error_elements) > 0:
+        return False
+    
+    return True
+
 
 def navigate_to_web_claim_entry(driver: webdriver.Chrome):
     """Navigates to the web claim entry page
@@ -348,7 +354,10 @@ def enter_all_patient_data():
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
     driver.get(config['s13_url'])
-    system13_login(driver)
+    successful_login: bool = system13_login(driver)
+    if not successful_login:
+        print('Invalid Username or Password. Please check login credentials and try again.')
+        return
     navigate_to_web_claim_entry(driver)
 
     for row_index in range(16, patient_data.max_row + 1):
