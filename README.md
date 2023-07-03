@@ -16,18 +16,20 @@ The goal of this repository is to completely automate the data entry into the sy
     - Likewise, I recommend setting "pf_pdf_download_location" to "data\\patient_pdfs\\\\"
 
 # Instructions
-1. Edit the excel file to match the template columns and worksheet name
-2. Rename the excel file to "procedure_schedule.xlsx"
-3. Run `python .\spreadsheet_parser.py`
-4. Wait for the "Done with excel cleanup" message
-5. _Optional but recommended:_ Check the excel file for bad fields
-6. Run `python .\practice_fusion_scraper.py`  
+1. Run the `claim_entry_automation.exe` file
+2. Edit the excel file to match the template columns and worksheet name
+3. Click the `Clean and Parse Spreadsheet` button
+    -__Note:__ The GUI will become unresponsive during processing
+4. Select the input excel file
+5. Wait for the "Done with excel cleanup" message
+6. _Optional but recommended:_ Check the excel file for bad fields
+7. Click the `Get Patient Data` button  
     - __Note:__ DO NOT close or minimize the browser window that is opened
-7. Enter the two factor authentication code in the small blue popup
-8. Wait for the "Done with Practice Fusion scraping" message
-9. _Optional but recommended:_ Check the excel file for bad/empty fields
-10. Fill in the "Ethnicity" and "Race" columns of the excel file using the numbers in the [enumerations section](#enumerations)
-11. Run `python .\system13_entry.py`
+8. Enter the two factor authentication code in the small blue popup
+9. Wait for the "Done with Practice Fusion scraping" message
+10. _Optional but recommended:_ Check the excel file for bad/empty fields
+11. Fill in the "Ethnicity" and "Race" columns of the excel file using the numbers in the [enumerations section](#enumerations)
+11. Click the `Enter Claims Info` button
     - __Note:__ DO NOT close or minimize the browser window that is opened
 12. Wait for the "Done with System13 entry" message
 
