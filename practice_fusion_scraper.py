@@ -186,7 +186,15 @@ def navigate_to_documents_tab(driver: webdriver.Chrome):
     sleep(1)
 
     # opens the signed vs unsigned document dropdown
-    document_filter_dropdown: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_documents_filter_css_select'])
+    try:
+        document_filter_dropdown: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_documents_filter_css_select'])
+    except:
+        driver.find_element(
+            By.CSS_SELECTOR,
+            'button[data-element="btn-rollback-patient"]',
+        ).click()
+        document_filter_dropdown: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_documents_filter_css_select'])
+
     document_filter_dropdown.click()
     sleep(.5)
 
@@ -247,6 +255,9 @@ def navigate_to_desired_document(driver: webdriver.Chrome, operation: str, opera
     operation_date: the date of the operation - used to filter results, searches for documents uploaded with 10 days of this date
     return: if a corresponding document was found
     """
+    if operation is None:
+        return False
+
     documents_container: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_document_container_css_select'])
     documents: list[WebElement] = documents_container.find_elements(By.XPATH, config['pf_document_row_xpath'])
     document_found: bool = False
@@ -311,6 +322,9 @@ def download_document(driver: webdriver.Chrome, patient_name: str, date: datetim
     new_file_path: str = f'{config["pf_pdf_download_location"]}{new_file_name}'
 
     sleep(1)
+
+    if not os.path.exists(old_file_path):
+        return ''
 
     if not os.path.exists(new_file_path):
         os.rename(old_file_path, new_file_path)
@@ -413,7 +427,9 @@ def get_all_patient_data():
     }
     chrome_options.add_experimental_option('prefs', prefs)
     chrome_options.add_argument('log-level=3') # removes warning/error logging from console
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(
+        options=chrome_options,
+    )
     driver.maximize_window()
 
     # loads the practice fusion webpage
@@ -467,6 +483,9 @@ def get_all_patient_data():
             continue
 
         pdf_file_path: str = download_document(driver, patient_name, operation_date, operation_type)
+        if pdf_file_path == '':
+            continue
+
         pdf_text: str = get_text_from_pdf(pdf_file_path)
         id, procedure_code, diagnosis_code = parse_pdf_text(pdf_text)
 

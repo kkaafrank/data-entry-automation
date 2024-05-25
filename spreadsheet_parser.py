@@ -23,10 +23,10 @@ def remove_unnecessary_rows(worksheet):
             worksheet.delete_rows(row_index, 1)
             continue
 
-        confirmed: bool = any([confirm_keyword in patient_name_cell.value.lower() for confirm_keyword in confirmed_keywords])
-        if not confirmed:
-            worksheet.delete_rows(row_index, 1)
-            continue
+        # confirmed: bool = any([confirm_keyword in patient_name_cell.value.lower() for confirm_keyword in confirmed_keywords])
+        # if not confirmed:
+        #     worksheet.delete_rows(row_index, 1)
+        #     continue
 
         is_monday: bool = date_cell.value.weekday() == 0
         is_wednesday: bool = date_cell.value.weekday() == 2
@@ -110,7 +110,10 @@ def separate_combined_procedures(worksheet):
     return: edited openpyxl worksheet
     """
     for row_index in range(worksheet.max_row, 1, -1):
-        procedure: str = worksheet.cell(row_index, config['column_name_mapping']['PROCEDURE']).value.lower()
+        procedure: str = worksheet.cell(row_index, config['column_name_mapping']['PROCEDURE']).value
+        if procedure is None:
+            continue
+        procedure = procedure.lower()
         is_colonoscopy: bool = 'colon' in procedure
         is_egd: bool = 'egd' in procedure
 
@@ -142,7 +145,11 @@ def derive_insurance_type(worksheet):
     """
     self_pay_spellings: list[str] = config['self_pay_spellings'].split(',')
     for row_index in range(worksheet.max_row, 1, -1):
-        insurace_provider: str = worksheet.cell(row_index, config['column_name_mapping']['INSURANCE']).value.lower()
+        insurace_provider: str = worksheet.cell(row_index, config['column_name_mapping']['INSURANCE']).value
+        if insurace_provider is None:
+            insurace_provider = 'self-pay'
+        else:
+            insurace_provider = insurace_provider.lower()
         insurance_type: str = ''
 
         if 'bcbs' in insurace_provider:
