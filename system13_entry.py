@@ -245,8 +245,6 @@ def enter_charges_fields(driver: webdriver.Chrome, claim_entry_information: dict
     quantity_field: WebElement = driver.find_element(By.ID, config['s13_quantity_id'])
     quantity_field.send_keys(config['s13_charge_quantity'])
     sleep(1)
-    quantity_field.send_keys(config['s13_charge_quantity'])
-    sleep(.5)
 
     # unit
     # "un" is a substring of "international unit"
@@ -366,7 +364,7 @@ def enter_all_patient_data():
         return
     navigate_to_web_claim_entry(driver)
 
-    for row_index in range(2, patient_data.max_row + 1):
+    for row_index in range(136, patient_data.max_row + 1):
         date: datetime = patient_data.cell(row_index, COLUMN_NAME_MAPPING['DATE']).value
         dob: datetime = patient_data.cell(row_index, COLUMN_NAME_MAPPING['DOB']).value
         claim_entry_information: dict = {
