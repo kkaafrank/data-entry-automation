@@ -49,8 +49,7 @@ def practice_fusion_login(driver: webdriver.Chrome):
                 break
 
             is_2fa_successful = validate_2fa(driver)
-            pass
-                
+
     except:
         print('Invalid username/password')
         return False
