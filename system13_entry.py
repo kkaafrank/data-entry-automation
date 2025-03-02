@@ -233,7 +233,26 @@ def enter_payers_fields(driver: webdriver.Chrome, claim_entry_information: dict)
     """
     # primary payer type
     primary_payer_type_field: WebElement = driver.find_element(By.ID, config['s13_primary_payer_type_id'])
-    primary_payer_type_field.send_keys(claim_entry_information['insurance_type'])
+    primary_payer_type_field.click()
+
+    primary_payer_type_dropdown: WebElement = driver.find_element(By.ID, config["s13_primary_payer_dropdown_id"])
+    primary_payer_type_dropdown_options: list[WebElement] = primary_payer_type_dropdown.find_elements(By.CSS_SELECTOR, "li")
+
+    insurance_type: float | str = claim_entry_information['insurance_type']
+    if isinstance(insurance_type, float):
+        insurance_type = str(int(insurance_type))
+
+    dropdown_option_to_click: WebElement | None = None
+    for dropdown_option in primary_payer_type_dropdown_options:
+        if dropdown_option.text.startswith(insurance_type):
+            dropdown_option_to_click = dropdown_option
+            break
+
+    if dropdown_option_to_click is None:
+        print(f"No matching option for Primary Payer Type for {claim_entry_information['first_name']} {claim_entry_information['last_name']}")
+        return
+
+    dropdown_option.click()
 
     # primary payer name
     primary_payer_name_field: WebElement = driver.find_element(By.ID, config['s13_primary_payer_name_id'])
