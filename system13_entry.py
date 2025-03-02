@@ -5,6 +5,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from datetime import datetime
 from time import sleep
 import openpyxl
+import PySimpleGUI as sg
 
 from config import config
 COLUMN_NAME_MAPPING: dict = config['column_name_mapping']
@@ -47,6 +48,38 @@ def navigate_to_web_claim_entry(driver: webdriver.Chrome):
     web_claim_entry_button.click()
 
     sleep(1)
+
+
+def system13_authentication(driver: webdriver.Chrome) -> bool:
+    """Handles authentication for system13 login
+
+    Args:
+        driver: selenium webpage driver
+
+    Returns:
+        whether or not authentication was successfull
+            false if the user did not enter an authentication code
+    """
+    enter_code_box: WebElement = driver.find_element(By.ID, config["s13_auth_code_box_id"])
+    authentication_form_section: WebElement = driver.find_element(By.ID, config["s13_auth_form_section_id"])
+    verify_button: WebElement = authentication_form_section.find_element(By.CSS_SELECTOR, config["s13_auth_send_button_css"])
+
+    is_2fa_successful: bool = False
+    while not is_2fa_successful:
+        code = sg.popup_get_text("Enter two factor authentication code: ", keep_on_top=True)
+        if code is None or code == "":
+            break
+
+        enter_code_box.send_keys(code)
+        verify_button.click()
+        sleep(.5)
+
+        try:
+            driver.find_element(By.CSS_SELECTOR, config["s13_auth_error_css"])
+        except:
+            is_2fa_successful = True
+
+    return is_2fa_successful
 
 
 def enter_in_search_box(driver: webdriver.Chrome, parent_element: WebElement,
@@ -363,6 +396,7 @@ def enter_all_patient_data():
         print('Invalid Username or Password. Please check login credentials and try again.')
         return
     navigate_to_web_claim_entry(driver)
+    system13_authentication(driver)
 
     for row_index in range(136, patient_data.max_row + 1):
         date: datetime = patient_data.cell(row_index, COLUMN_NAME_MAPPING['DATE']).value
