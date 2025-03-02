@@ -19,6 +19,8 @@ pytesseract.pytesseract.tesseract_cmd = config['tesseract_path']
 COLUMN_NAME_MAPPING: dict = config['column_name_mapping']
 
 
+# TODO: replace try-except-pass with suppress
+
 def practice_fusion_login(driver: webdriver.Chrome):
     """Logs into practice fusion
 
@@ -120,6 +122,14 @@ def enter_date_of_birth(driver: webdriver.Chrome, dob: str):
     driver: selenium webpage driver
     dob: date of birth as a string - mm/dd/yyyy
     """
+    try:
+        remove_dob_entry_element = driver.find_element(By.CSS_SELECTOR, config["pf_remove_dob_entry_css_select"])
+    except:
+        pass
+    else:
+        remove_dob_entry_element.click()
+        sleep(.5)
+
     patient_search_element: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_patient_search_css_select'])
     patient_search_element.send_keys(f'{dob}')
     sleep(.5)
