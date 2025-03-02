@@ -265,6 +265,15 @@ def enter_charges_fields(driver: webdriver.Chrome, claim_entry_information: dict
     driver: selenium webpage driver
     claim_information: openpyxl excel sheet
     """
+    # TODO: find out why the charges tab dies when using the normal navigate to next section method
+    payers_tab = driver.find_element(By.ID, config["s13_payers_tab_id"])
+    payers_tab.click()
+    sleep(1)
+
+    charges_tab = driver.find_element(By.ID, config["s13_charges_tab_id"])
+    charges_tab.click()
+    sleep(1)
+
     # revenue code
     revenue_code_field: WebElement = driver.find_element(By.ID, config['s13_revenue_code_id'])
     revenue_code_field.send_keys(config['s13_revenue_code'])
