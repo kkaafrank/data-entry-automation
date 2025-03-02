@@ -157,9 +157,9 @@ def derive_insurance_type(worksheet):
         elif any([self_pay_spelling in insurace_provider for self_pay_spelling in self_pay_spellings]):
             insurance_type = 'Z'
         elif 'ppo' in insurace_provider:
-            insurance_type = 'PPO'
+            insurance_type = '12'
         else:
-            insurance_type = 'HMO'
+            insurance_type = '16'
         
         worksheet.cell(row_index, config['column_name_mapping']['INSURANCE TYPE'], insurance_type)
 
