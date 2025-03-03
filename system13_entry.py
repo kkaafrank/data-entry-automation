@@ -423,8 +423,8 @@ def enter_all_patient_data():
     if not successful_login:
         print('Invalid Username or Password. Please check login credentials and try again.')
         return
-    navigate_to_web_claim_entry(driver)
     system13_authentication(driver)
+    navigate_to_web_claim_entry(driver)
 
     for row_index in range(2, patient_data.max_row + 1):
         date: datetime = patient_data.cell(row_index, COLUMN_NAME_MAPPING['DATE']).value
