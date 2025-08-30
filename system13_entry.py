@@ -21,7 +21,7 @@ def system13_login(driver: webdriver.Chrome):
     password_element.send_keys(config['s13_password'])
     login_button_element: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_login_button_css_select'])
     login_button_element.click()
-    
+
     # allow new webpage to load
     sleep(1)
 
@@ -33,7 +33,7 @@ def system13_login(driver: webdriver.Chrome):
     error_elements: list[WebElement] = driver.find_elements(By.CSS_SELECTOR, config['s13_login_error_css_select'])
     if len(error_elements) > 0:
         return False
-    
+
     return True
 
 
@@ -72,7 +72,7 @@ def system13_authentication(driver: webdriver.Chrome) -> bool:
 
         enter_code_box.send_keys(code)
         verify_button.click()
-        sleep(.5)
+        sleep(1)
 
         try:
             driver.find_element(By.CSS_SELECTOR, config["s13_auth_error_css"])
@@ -92,7 +92,6 @@ def enter_in_search_box(driver: webdriver.Chrome, parent_element: WebElement,
     extra_down_input: if an extra down input is needed to select the desired value (some strings have multiple results)
     """
     parent_element.send_keys(Keys.ENTER)
-    
     search_bar: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_search_dropdown_css_select'])
     search_bar.send_keys(value)
 
@@ -370,7 +369,7 @@ def navigate_to_next_section(driver: webdriver.Chrome):
     driver: selenium webpage driver
     """
     sleep(1)
-    
+
     next_section_button: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_next_section_css_select'])
     next_section_button.click()
 
@@ -383,7 +382,7 @@ def submit_claim(driver: webdriver.Chrome):
     driver: selenium webpage driver
     """
     sleep(1)
-    
+
     check_for_errors_button: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_check_for_errors_css_select'])
     check_for_errors_button.click()
 

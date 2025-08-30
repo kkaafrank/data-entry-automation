@@ -34,7 +34,7 @@ def practice_fusion_login(driver: webdriver.Chrome):
     login_button_element.click()
 
     # validate_login(driver)
-    
+
     # allow new webpage to load
     sleep(1)
 
@@ -64,7 +64,7 @@ def enter_2fa_code(driver: webdriver.Chrome) -> bool:
     return: if 2fa was entered
     """
     code: str = sg.popup_get_text(message='Enter two factor authentication code:', keep_on_top=True)
-    
+
     if code is None or code == '':
         return False
 
@@ -88,7 +88,7 @@ def validate_2fa(driver: webdriver.Chrome) -> bool:
         driver.find_element(By.XPATH, config['pf_wrong_code_xpath'])
     except:
         return True
-    
+
     return False
 
 
@@ -98,7 +98,7 @@ def go_to_charts(driver: webdriver.Chrome):
     driver: selenium webpage driver
     """
     sidebar_elements: list[WebElement] = driver.find_elements(By.CLASS_NAME, config['pf_sidebar_label_class'])
-    charts_label: WebElement = [element for element in sidebar_elements 
+    charts_label: WebElement = [element for element in sidebar_elements
                                 if element.text == config['pf_charts_element_text']][0]
     charts_label.click()
 
@@ -161,7 +161,7 @@ def navigate_to_patient_info(driver: webdriver.Chrome, full_name: str) -> bool:
         By.CSS_SELECTOR, config['pf_first_name_css_select'])
     search_patient_last_names: list[WebElement] = driver.find_elements(
         By.CSS_SELECTOR, config['pf_last_name_css_select'])
-    
+
     # gets list of patient names that match the DOB
     full_name_element_mapping: dict = {}
     for first_name_ele, last_name_ele in zip(search_patient_first_names, search_patient_last_names):
@@ -187,7 +187,7 @@ def navigate_to_patient_info(driver: webdriver.Chrome, full_name: str) -> bool:
 
 def navigate_to_documents_tab(driver: webdriver.Chrome):
     """Navigates to the patient's document tab
-    
+
     driver: selenium webpage driver
     """
     document_tab_element: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_documents_tab_css_select'])
@@ -273,7 +273,7 @@ def navigate_to_desired_document(driver: webdriver.Chrome, operation: str, opera
 
     for document in documents:
         document_information_containers: list[WebElement] = document.find_elements(By.XPATH, config['xpath_child_selector'])
-        
+
         # finds the document type (operation name)
         document_type: WebElement = document_information_containers[2]
         document_type_div: WebElement = document_type.find_element(By.XPATH, config['xpath_child_selector'])
@@ -285,8 +285,11 @@ def navigate_to_desired_document(driver: webdriver.Chrome, operation: str, opera
 
         # finds the document upload date and converts to a string
         document_date_str: WebElement = document.find_elements(By.XPATH, config['xpath_child_selector'])[5].text
-        document_date: datetime.datetime = datetime.datetime.strptime(document_date_str, '%m/%d/%Y')
-        end_date_range: datetime.datetime = operation_date + datetime.timedelta(days=10) # date range to check
+        try:
+            document_date: datetime.datetime = datetime.datetime.strptime(document_date_str, '%m/%d/%Y')
+        except:
+            document_date = datetime.datetime.strptime(document_date_str, '%m/%d/%y')
+        end_date_range: datetime.datetime = operation_date + datetime.timedelta(days=15) # date range to check
 
         # skips if document was not uploaded within the specified number of days
         if not (operation_date <= document_date <= end_date_range):
@@ -427,7 +430,7 @@ def get_all_patient_data():
     # read the cleaned patient data
     workbook = openpyxl.load_workbook(f'data/{config["cleaned_workbook_name"]}')
     patient_data = workbook[config['main_worksheet_name']]
-    
+
     # chrome options
     chrome_options = webdriver.ChromeOptions()
     prefs = {
@@ -460,7 +463,7 @@ def get_all_patient_data():
 
         patient_dob: str = get_date_of_birth(patient_data, row_index)
         enter_date_of_birth(driver, patient_dob)
-        
+
         patient_name: str = get_patient_full_name(patient_data, row_index)
         navigation_successful: bool = navigate_to_patient_info(driver, patient_name)
         if not navigation_successful:
