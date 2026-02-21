@@ -81,24 +81,16 @@ def clean_patient_name_cells(worksheet):
         patient_name_cell_value = patient_name_cell_value.lower()
         patient_name_cell_value = patient_name_cell_value.replace('comfirmed', 'confirmed')
 
-        patient_cell_parts = re.split(' |\(|,', patient_name_cell_value, maxsplit=3)
-        for substring_index in range(len(patient_cell_parts) -1, -1, -1):
-            substring = patient_cell_parts[substring_index]
+        patient_name_cleaned = patient_name_cell_value.replace("*", "")
+        patient_name_cleaned = patient_name_cleaned.strip()
 
-            if 'confirmed' in substring:
-                patient_cell_parts.remove(substring)
-                continue
-            if substring.startswith('-'):
-                patient_cell_parts.remove(substring)
-                continue
-            if substring.endswith('-'):
-                patient_cell_parts[substring_index] = substring[:-1]
-            if not re.match(r'[A-Za-z\-]+', substring):
-                patient_cell_parts.remove(substring)
-                continue
-
+        patient_cell_parts = patient_name_cleaned.split(" ")
         first_name: str = ' '.join(patient_cell_parts[:-1])
-        last_name: str = patient_cell_parts[-1]
+
+        last_name: str = ""
+        if len(patient_cell_parts) > 1:
+            last_name = patient_cell_parts[-1]
+
         worksheet.cell(row_index, config['column_name_mapping']['FIRST NAME'], first_name)
         worksheet.cell(row_index, config['column_name_mapping']['LAST NAME'], last_name)
 
