@@ -40,14 +40,11 @@ class MainWindow(QMainWindow):
         self.sys_13_entry_button.clicked.connect(system13_entry.enter_all_patient_data)
 
     def data_prep_button_clicked(self):
-        file_browse = QFileDialog(
+        file, _ = QFileDialog.getOpenFileName(
             parent=None,
-            filter="Excel Files (*.xlsx);; All Files (.*)"
+            filter="Excel Files (*.xlsx);; All Files (.*)",
+            dir="./data"
         )
-        if not file_browse.exec():
-            return
-
-        file, _ = file_browse.getOpenFileName()
 
         spreadsheet_parser.parse_spreadsheet(file)
 
