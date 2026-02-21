@@ -1,13 +1,15 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
 from datetime import datetime
 from time import sleep
+
 import openpyxl
-import PySimpleGUI as sg
+from PySide6.QtWidgets import QInputDialog
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.remote.webelement import WebElement
 
 from config import config
+
 COLUMN_NAME_MAPPING: dict = config['column_name_mapping']
 
 def system13_login(driver: webdriver.Chrome):
@@ -66,11 +68,11 @@ def system13_authentication(driver: webdriver.Chrome) -> bool:
 
     is_2fa_successful: bool = False
     while not is_2fa_successful:
-        code = sg.popup_get_text("Enter two factor authentication code: ", keep_on_top=True)
-        if code is None or code == "":
+        mfa_code = QInputDialog.getText(title="Enter MFA Code", label="Enter code:")
+        if mfa_code is None or mfa_code == "":
             break
 
-        enter_code_box.send_keys(code)
+        enter_code_box.send_keys(mfa_code)
         verify_button.click()
         sleep(1)
 

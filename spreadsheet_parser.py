@@ -1,9 +1,11 @@
-import re
-import openpyxl
 import datetime
-import PySimpleGUI as psg
+import re
+from pathlib import Path
+
+import openpyxl
 
 from config import config
+
 
 def remove_unnecessary_rows(worksheet):
     """Removes empty and unwanted rows from the excel sheet
@@ -38,7 +40,7 @@ def remove_unnecessary_rows(worksheet):
 
 def edit_spreadsheet_columns(worksheet):
     """Removes unnecessary columns and adds empty ones that will be used later
-    
+
     worksheet: openpyxl worksheet
     return: edited openpyxl worksheet
     """
@@ -61,7 +63,7 @@ def edit_spreadsheet_columns(worksheet):
             worksheet.cell(1, col_index, col_name)
             # sheet_column_names.append(col_name)
     print('    Done adding columns')
-        
+
     return worksheet
 
 
@@ -94,7 +96,7 @@ def clean_patient_name_cells(worksheet):
             if not re.match(r'[A-Za-z\-]+', substring):
                 patient_cell_parts.remove(substring)
                 continue
-        
+
         first_name: str = ' '.join(patient_cell_parts[:-1])
         last_name: str = patient_cell_parts[-1]
         worksheet.cell(row_index, config['column_name_mapping']['FIRST NAME'], first_name)
@@ -105,7 +107,7 @@ def clean_patient_name_cells(worksheet):
 
 def separate_combined_procedures(worksheet):
     """Separates a patient with two procedures (colon and egd)
-    
+
     worksheet: openpyxl worksheet
     return: edited openpyxl worksheet
     """
@@ -160,7 +162,7 @@ def derive_insurance_type(worksheet):
             insurance_type = '12'
         else:
             insurance_type = '16'
-        
+
         worksheet.cell(row_index, config['column_name_mapping']['INSURANCE TYPE'], insurance_type)
 
     return worksheet
@@ -185,63 +187,20 @@ def strip_name_fields(worksheet):
     return worksheet
 
 
-def create_file_selection_layout() -> list[list[psg.Element]]:
-    file_prompt_text = psg.Text(
-        text='Select Initial Spreadsheet:',
-    )
-    file_input = psg.Input(
-        key=config['spreadsheet_input_key'],
-        enable_events=True,
-    )
-    file_browse_button = psg.FileBrowse(
-        button_text='Browse Files',
-        file_types=(('Excel Spreadsheets', '.xlsx'), ('All Files', '.*')),
-    )
-    file_gui_layout = [
-        [file_prompt_text],
-        [file_input, file_browse_button],
-        [psg.Submit(key=config['ok_key']), psg.Cancel(config['cancel_key'])]
-    ]
-    return file_gui_layout
-
-def get_initial_spreadsheet_file() -> str:
-    layout = create_file_selection_layout()
-    window = psg.Window(
-        title='Select Spreadsheet File',
-        layout=layout,
-    )
-
-    ok_key: str = config['ok_key']
-    cancel_key: str = config['cancel_key']
-
-    while True:
-        event, values = window.read()
-
-        if event == psg.WIN_CLOSED or event == cancel_key:
-            window.Close()
-            return None
-        
-        if event == ok_key:
-            window.Close()
-            break
-
-    file_name: str = values[config['spreadsheet_input_key']]
-    return file_name
-
-
 def check_valid_excel_name(file_name: str) -> bool:
-    if not file_name:
+    file_path = Path(file_name)
+
+    if not file_path.is_file():
         return False
-    elif '.xlsx' not in file_name:
+    elif file_path.suffix != ".xlsx":
         return False
-    
+
     return True
 
 
-def parse_spreadsheet():
+def parse_spreadsheet(file_name: str):
     """Main driver function for the spreadsheet cleanup and parsing routine
     """
-    file_name: str = get_initial_spreadsheet_file()
     is_valid_file_name: bool = check_valid_excel_name(file_name)
     if not is_valid_file_name:
         return
@@ -273,4 +232,4 @@ def parse_spreadsheet():
 
 
 if __name__ == '__main__':
-    parse_spreadsheet()
+    parse_spreadsheet("")

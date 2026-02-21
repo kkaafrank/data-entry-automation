@@ -1,20 +1,20 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
-
-from pdf2image import convert_from_path
-from PIL import Image
-import pytesseract
-
-import difflib
 import datetime
-import openpyxl
-import PySimpleGUI as sg
+import difflib
 import os
 from time import sleep
 
+import openpyxl
+import pytesseract
+from pdf2image import convert_from_path
+from PIL import Image
+from PySide6.QtWidgets import QInputDialog
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.remote.webelement import WebElement
+
 from config import config
+
 pytesseract.pytesseract.tesseract_cmd = config['tesseract_path']
 COLUMN_NAME_MAPPING: dict = config['column_name_mapping']
 
@@ -63,14 +63,14 @@ def enter_2fa_code(driver: webdriver.Chrome) -> bool:
     driver: selenium webpage driver
     return: if 2fa was entered
     """
-    code: str = sg.popup_get_text(message='Enter two factor authentication code:', keep_on_top=True)
+    mfa_code = QInputDialog.getText(title="Enter MFA Code", label="Enter code:")
 
-    if code is None or code == '':
+    if mfa_code is None or mfa_code == '':
         return False
 
     enter_code_element: WebElement = driver.find_element(By.ID, config['pf_enter_code_field_id'])
     enter_code_element.clear()
-    enter_code_element.send_keys(code)
+    enter_code_element.send_keys(mfa_code)
     send_code_button: WebElement = driver.find_element(By.ID, config['pf_send_code_button_id'])
     send_code_button.click()
 
@@ -192,7 +192,7 @@ def navigate_to_documents_tab(driver: webdriver.Chrome):
     """
     document_tab_element: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_documents_tab_css_select'])
     document_tab_element.click()
-    sleep(1)
+    sleep(2)
 
     # opens the signed vs unsigned document dropdown
     try:
@@ -287,12 +287,14 @@ def navigate_to_desired_document(driver: webdriver.Chrome, operation: str, opera
         document_date_str: WebElement = document.find_elements(By.XPATH, config['xpath_child_selector'])[5].text
         try:
             document_date: datetime.datetime = datetime.datetime.strptime(document_date_str, '%m/%d/%Y')
-        except:
+        except ValueError:
             document_date = datetime.datetime.strptime(document_date_str, '%m/%d/%y')
+
+        start_date_range: datetime.datetime = operation_date - datetime.timedelta(days=5)
         end_date_range: datetime.datetime = operation_date + datetime.timedelta(days=15) # date range to check
 
         # skips if document was not uploaded within the specified number of days
-        if not (operation_date <= document_date <= end_date_range):
+        if not (start_date_range <= document_date <= end_date_range):
             continue
 
         # continues to the document page
@@ -325,6 +327,8 @@ def download_document(driver: webdriver.Chrome, patient_name: str, date: datetim
     patient_info_tabs_container: WebElement = driver.find_element(By.CSS_SELECTOR, config['pf_tab_list_css_select'])
     pdf_name_element: WebElement = patient_info_tabs_container.find_element(By.XPATH, config['pf_pdf_name_xpath'])
     pdf_name: str = pdf_name_element.text
+    if not pdf_name.endswith(".pdf"):
+        pdf_name += ".pdf"
 
     operation_type = operation_type.strip().lower()
     date_str: str = date.strftime('%Y-%m-%d')
@@ -403,19 +407,32 @@ def close_patient_charts_tab(driver: webdriver.Chrome):
         close_charts_button: WebElement = patient_chart_container.find_elements(By.XPATH, config['xpath_child_selector'])[2]
         close_charts_button.click()
 
-        sleep(3)
+        sleep(5)
     except:
         pass
 
     try:
-        potential_close_dob_filter_button: list[WebElement] = driver.find_elements(By.CSS_SELECTOR, config['pf_dob_close_css_select'])
-        close_dob_filter_button: WebElement
-        for button in potential_close_dob_filter_button:
-            if button.accessible_name == '\uf139':
-                close_dob_filter_button = button
+        buttons: list[WebElement] = driver.find_elements(By.CSS_SELECTOR, 'button[role="button"]')
+        dob_element: WebElement | None = None
+        for button in buttons:
+            if "dob" in button.text.lower():
+                dob_element = button
                 break
 
-        close_dob_filter_button.click()
+        if dob_element is None:
+            raise RuntimeError("Could not find date of birth filter to close.")
+
+        close_button = dob_element.find_element(By.XPATH, "../button[2]")
+        close_button.click()
+
+        # potential_close_dob_filter_button: list[WebElement] = driver.find_elements(By.CSS_SELECTOR, config['pf_dob_close_css_select'])
+        # close_dob_filter_button: WebElement
+        # for button in potential_close_dob_filter_button:
+        #     if button.accessible_name == '\uf139':
+        #         close_dob_filter_button = button
+        #         break
+
+        # close_dob_filter_button.click()
 
         sleep(1)
     except:
@@ -442,6 +459,7 @@ def get_all_patient_data():
     driver = webdriver.Chrome(
         options=chrome_options,
     )
+    driver.timeouts.implicit_wait = 10
     driver.maximize_window()
 
     # loads the practice fusion webpage

@@ -1,8 +1,10 @@
-openpyxl>=3.1.2
-python-dotenv>=1.0.0
-selenium>=4.9.1
-pytesseract>=0.3.10
-pandas>=2.0.1
+--extra-index-url https://PySimpleGUI.net/install
+
+openpyxl~=3.1.2
+python-dotenv~=1.0.0
+selenium~=4.9.1
+pytesseract~=0.3.10
+pandas~=2.3.3
 PyInstaller>=5.13.0
-pysimplegui>=4.60.5
-pdf2image>=1.16.3
+PySide6~=6.10.2
+pdf2image~=1.16.3
