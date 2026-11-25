@@ -68,8 +68,8 @@ def system13_authentication(driver: webdriver.Chrome) -> bool:
 
     is_2fa_successful: bool = False
     while not is_2fa_successful:
-        mfa_code = QInputDialog.getText(title="Enter MFA Code", label="Enter code:")
-        if mfa_code is None or mfa_code == "":
+        mfa_code, is_ok = QInputDialog.getText(None, "Enter MFA Code", "Enter code:")
+        if not (is_ok or mfa_code):
             break
 
         enter_code_box.send_keys(mfa_code)
@@ -94,7 +94,9 @@ def enter_in_search_box(driver: webdriver.Chrome, parent_element: WebElement,
     extra_down_input: if an extra down input is needed to select the desired value (some strings have multiple results)
     """
     parent_element.send_keys(Keys.ENTER)
+    sleep(1)
     search_bar: WebElement = driver.find_element(By.CSS_SELECTOR, config['s13_search_dropdown_css_select'])
+    sleep(1)
     search_bar.send_keys(value)
 
     sleep(2)
@@ -102,6 +104,21 @@ def enter_in_search_box(driver: webdriver.Chrome, parent_element: WebElement,
     if extra_down_input:
         search_bar.send_keys(Keys.DOWN)
     search_bar.send_keys(Keys.ENTER)
+
+
+def set_date_field(driver: webdriver.Firefox, element_id: str, value: str) -> None:
+    """Create a javascript command meant to used with driver.execute() to set the value of a
+    date input element
+
+    Args:
+        element_id (str): id of the element to set the value of
+        value (str): value to set to. expected to be in YYYY-MM-DD
+    """
+    date_input = driver.find_element(By.ID, element_id)
+    js_command = f"arguments[0].value = '{value}';"
+    driver.execute_script(js_command, date_input)
+
+    date_input.click()
 
 
 def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
@@ -155,13 +172,22 @@ def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
     # zip code
     zip_code_field: WebElement = driver.find_element(By.ID, config['s13_zip_id'])
     zip_code_field.send_keys(claim_information['zip_code'])
-    sleep(.5)
+    sleep(1)
 
     # country
-    # needs extra down input
-    #   "united states" is a substring of "united states minor outlying islands"
+    # need to cycle through all the "U" countries. United States is fourth
     country_field: WebElement = driver.find_element(By.ID, config['s13_country_id'])
-    country_field.send_keys(config['country'])
+    country_field.click()
+    sleep(.5)
+    country_field.send_keys("u")
+    sleep(.5)
+    country_field.send_keys(Keys.DOWN)
+    sleep(.5)
+    country_field.send_keys(Keys.DOWN)
+    sleep(.5)
+    country_field.send_keys(Keys.DOWN)
+    sleep(.5)
+    country_field.send_keys(Keys.ENTER)
     sleep(.5)
 
     # ssn
@@ -170,9 +196,10 @@ def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
     sleep(.5)
 
     # sex
-    # needs extra down input
-    #   "male" is a substring of "female"
     sex_field: WebElement = driver.find_element(By.ID, config['s13_sex_id'])
+    sleep(1)
+    sex_field.send_keys(claim_information['sex'])
+    sleep(.5)
     sex_field.send_keys(claim_information['sex'])
     sleep(.5)
 
@@ -182,9 +209,8 @@ def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
     sleep(.5)
 
     # date of birth
-    dob_field: WebElement = driver.find_element(By.ID, config['s13_dob_id'])
-    dob_field.send_keys(claim_information['dob'])
-    sleep(.5)
+    set_date_field(driver, config['s13_dob_id'], claim_information['dob'])
+    sleep(1)
 
     # race
     race_field: WebElement = driver.find_element(By.ID, config['s13_race_id'])
@@ -192,14 +218,12 @@ def enter_patient_fields(driver: webdriver.Chrome, claim_information: dict):
     sleep(.5)
 
     # date of operation
-    bill_from_field: WebElement = driver.find_element(By.ID, config['s13_bill_from_id'])
-    bill_from_field.send_keys(claim_information['date'])
+    set_date_field(driver, config['s13_bill_from_id'], claim_information['date'])
     sleep(.5)
 
     # end date of operation (currently same as the date of operation)
-    bill_to_field: WebElement = driver.find_element(By.ID, config['s13_bill_to_id'])
+    set_date_field(driver, config['s13_bill_to_id'], claim_information['date'])
     sleep(.5)
-    bill_to_field.send_keys(claim_information['date'])
 
     # claim frequency
     claim_frequency_field: WebElement = driver.find_element(By.ID, config['s13_frequency_id'])
@@ -235,6 +259,7 @@ def enter_payers_fields(driver: webdriver.Chrome, claim_entry_information: dict)
     # primary payer type
     primary_payer_type_field: WebElement = driver.find_element(By.ID, config['s13_primary_payer_type_id'])
     primary_payer_type_field.click()
+    sleep(2)
 
     primary_payer_type_dropdown: WebElement = driver.find_element(By.ID, config["s13_primary_payer_dropdown_id"])
     primary_payer_type_dropdown_options: list[WebElement] = primary_payer_type_dropdown.find_elements(By.CSS_SELECTOR, "li")
@@ -286,14 +311,16 @@ def enter_charges_fields(driver: webdriver.Chrome, claim_entry_information: dict
     sleep(.5)
 
     # procedure date
-    procedure_date_field: WebElement = driver.find_element(By.ID, config['s13_procedure_date_id'])
-    procedure_date_field.send_keys(claim_entry_information['date'])
+    set_date_field(
+        driver, config['s13_procedure_date_id'], claim_entry_information['date']
+    )
     sleep(.5)
 
     # end date of procedure (currently same as the date of operation)
-    procedure_date_to_field: WebElement = driver.find_element(By.ID, config['s13_procedure_to_date_id'])
+    set_date_field(
+        driver, config['s13_procedure_to_date_id'], claim_entry_information['date']
+    )
     sleep(.5)
-    procedure_date_to_field.send_keys(claim_entry_information['date'])
 
     # unit rate
     rate_field: WebElement = driver.find_element(By.ID, config['s13_unit_rate_id'])
@@ -413,11 +440,12 @@ def enter_all_patient_data():
     workbook = openpyxl.load_workbook(f'data/{config["cleaned_workbook_name"]}')
     patient_data = workbook[config['main_worksheet_name']]
 
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('log-level=3')
-    driver = webdriver.Chrome(
-        options=chrome_options,
+    ff_options = webdriver.FirefoxOptions()
+    ff_options.log.level = "INFO"  # removes warning/error logging from console
+    driver = webdriver.Firefox(
+        options=ff_options,
     )
+
     driver.maximize_window()
     driver.get(config['s13_url'])
     successful_login: bool = system13_login(driver)
@@ -431,12 +459,12 @@ def enter_all_patient_data():
         date: datetime = patient_data.cell(row_index, COLUMN_NAME_MAPPING['DATE']).value
         dob: datetime = patient_data.cell(row_index, COLUMN_NAME_MAPPING['DOB']).value
         claim_entry_information: dict = {
-            'date': date.strftime('%m%d%Y'),
+            'date': date.strftime('%Y-%m-%d'),
             'first_name': patient_data.cell(row_index, COLUMN_NAME_MAPPING['FIRST NAME']).value,
             'last_name': patient_data.cell(row_index, COLUMN_NAME_MAPPING['LAST NAME']).value,
             'id': patient_data.cell(row_index, COLUMN_NAME_MAPPING['PROCEDURE ID']).value,
             'procedure_code': patient_data.cell(row_index, COLUMN_NAME_MAPPING['PROCEDURE CODE']).value,
-            'dob': dob.strftime('%m%d%Y'),
+            'dob': dob.strftime('%Y-%m-%d'),
             'insurance_type': patient_data.cell(row_index, COLUMN_NAME_MAPPING['INSURANCE TYPE']).value,
             'insurance_name': patient_data.cell(row_index, COLUMN_NAME_MAPPING['INSURANCE']).value,
             'address_1': patient_data.cell(row_index, COLUMN_NAME_MAPPING['ADDRESS LINE 1']).value,

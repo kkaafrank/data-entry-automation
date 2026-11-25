@@ -63,9 +63,9 @@ def enter_2fa_code(driver: webdriver.Chrome) -> bool:
     driver: selenium webpage driver
     return: if 2fa was entered
     """
-    mfa_code = QInputDialog.getText(title="Enter MFA Code", label="Enter code:")
+    mfa_code, is_ok = QInputDialog.getText(None, "Enter MFA Code", "Enter code:")
 
-    if mfa_code is None or mfa_code == '':
+    if not (is_ok or mfa_code):
         return False
 
     enter_code_element: WebElement = driver.find_element(By.ID, config['pf_enter_code_field_id'])
@@ -449,15 +449,20 @@ def get_all_patient_data():
     patient_data = workbook[config['main_worksheet_name']]
 
     # chrome options
-    chrome_options = webdriver.ChromeOptions()
+    ff_options = webdriver.FirefoxOptions()
     prefs = {
-        'download.default_directory': config['pf_pdf_download_location'], # setting download location
-        'profile.default_content_settings.popups': False, # removes download prompt
+        "browser.download.folderList": 2,
+        "browser.download.useDownloadDir": True,
+        "browser.download.dir": config['pf_pdf_download_location'], # setting download location
+        # removes download prompt
+        "dom.popup_allowed_events": "",
+        "pdfjs.disabled": True,
+        "browser.download.alwaysOpenPanel": False,
     }
-    chrome_options.add_experimental_option('prefs', prefs)
-    chrome_options.add_argument('log-level=3') # removes warning/error logging from console
-    driver = webdriver.Chrome(
-        options=chrome_options,
+    ff_options.preferences.update(prefs)
+    ff_options.log.level = "INFO"  # removes warning/error logging from console
+    driver = webdriver.Firefox(
+        options=ff_options,
     )
     driver.timeouts.implicit_wait = 10
     driver.maximize_window()
